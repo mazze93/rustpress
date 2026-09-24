@@ -1,0 +1,8 @@
+/target/
+**/node_modules/
+**/dist/
+**/.astro/
+**/.rustpress/
+*.log
+.env*
+!.env.example

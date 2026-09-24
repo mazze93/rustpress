@@ -1,0 +1,47 @@
+[
+  {
+    "source": "first-impression.html",
+    "output": "first-impression/index.html",
+    "url": "/published/first-impression/",
+    "bytes": 1447,
+    "sha256": "b6898d479faed9d0751682bec0fbca0d063d619352fd6bb36841cf0ba808578b",
+    "metadata": {
+      "title": "The first impression",
+      "description": "A commissioning specimen for a quieter kind of publishing. The work is prepared once, checked, and released as exact bytes.",
+      "date": "2026-09-20",
+      "tags": [
+        "rustpress",
+        "specimen"
+      ],
+      "draft": false
+    }
+  },
+  {
+    "source": "(generated index)",
+    "output": "index.html",
+    "url": "/published/",
+    "bytes": 230,
+    "sha256": "dc91259384b4ef489dff3ab3d3ef05724cefffadfbaf41dabfae341b8db05229",
+    "metadata": {
+      "title": "Pressed works",
+      "description": null,
+      "date": null,
+      "tags": [],
+      "draft": false
+    }
+  },
+  {
+    "source": "specimen.css",
+    "output": "specimen.css",
+    "url": "/published/specimen.css",
+    "bytes": 730,
+    "sha256": "bb1071ab6e5d4189d6ce1c58aba80aabc6f1ef4e19ae3ef234e98ac68274c982",
+    "metadata": {
+      "title": null,
+      "description": null,
+      "date": null,
+      "tags": [],
+      "draft": false
+    }
+  }
+]

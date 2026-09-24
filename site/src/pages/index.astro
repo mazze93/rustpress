@@ -1,0 +1,80 @@
+---
+import "@fontsource/cormorant-garamond/400.css";
+import "@fontsource/cormorant-garamond/400-italic.css";
+import "@fontsource/cormorant-garamond/600.css";
+import "@fontsource/dm-mono/400.css";
+import "../styles/studio.css";
+import { pressing, works, site } from "../data";
+export interface Props {}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Studio · The pressing room · Mazze LeCzzare</title>
+    <meta name="description" content="A small archive of deliberate editions. Prepared locally, checked before publication, and sealed as exact bytes by Rustpress." />
+    <link rel="canonical" href={`${site}/`} />
+    <meta property="og:title" content="Studio · The pressing room" />
+    <meta property="og:description" content="Not a feed. A record of what was ready to leave the bench." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${site}/`} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the editions</a>
+    <header class="masthead">
+      <a class="wordmark" href="https://mazzeleczzare.com/">Mazze LeCzzare<span>Independent works & instruments</span></a>
+      <nav aria-label="Studio navigation">
+        <a href="#editions">Editions</a>
+        <a href="#colophon">Colophon</a>
+        <a href="https://mazzeleczzare.com/studio/">The bench <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="opening" aria-labelledby="title">
+        <div class="margin-note"><span class="registration" aria-hidden="true"></span><p>A working archive<br />Prepared with Rustpress</p></div>
+        <div class="title-block">
+          <p class="eyebrow">Studio / The pressing room</p>
+          <h1 id="title">A work becomes<br /><em>an edition.</em></h1>
+          <p class="lede">Not everything on the bench belongs in the world.<br class="wide" /> This is the part that was ready to leave it.</p>
+          <a class="text-link" href="#editions">Read the current pressing <span aria-hidden="true">↓</span></a>
+        </div>
+        <aside class="impression" aria-label="Current pressing">
+          <div class="impression-top"><span>RP</span><span>V.01</span></div>
+          <div class="press-mark" aria-hidden="true"><i></i><i></i><i></i><b>P</b></div>
+          <p>Prepared.<br />Checked.<br /><em>Pressed.</em></p>
+          <div class="impression-bottom"><span>Current edition</span><strong>{pressing.release}</strong></div>
+        </aside>
+        <div class="opening-foot"><span>Local preparation. Explicit publication.</span><span>No scripts. No forms. No analytics.</span></div>
+      </section>
+      <section class="editions" id="editions" aria-labelledby="editions-title">
+        <div class="section-heading"><p class="eyebrow">01 / On the shelf</p><h2 id="editions-title">The current pressing</h2><span class="count">{String(works.length).padStart(2, "0")} {works.length === 1 ? "work" : "works"}</span></div>
+        <div class="edition-list">
+          {works.map((entry, index) => (
+            <article class="edition">
+              <span class="edition-number">{String(index + 1).padStart(2, "0")}</span>
+              <div class="edition-body">
+                <p class="eyebrow">{entry.date || "Undated"} / Static edition</p>
+                <h3><a href={entry.url}>{entry.title || "Untitled edition"}<span aria-hidden="true">↗</span></a></h3>
+                <p>{entry.description || "A reviewed work, preserved in this pressing."}</p>
+                <div class="edition-proof"><span>{entry.bytes.toLocaleString("en-US")} bytes</span><span title={entry.sha256}>SHA-256 {entry.sha256.slice(0, 16)}</span></div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section class="colophon" id="colophon" aria-labelledby="colophon-title">
+        <div class="colophon-intro"><p class="eyebrow">02 / The colophon</p><h2 id="colophon-title">The impression<br />does not change.</h2><p>A pressing records the work as it stood. A revision receives a new name, not a quiet replacement inside the old one.</p><a class="text-link" href="/pressing.json">Inspect the public manifest <span aria-hidden="true">↗</span></a></div>
+        <dl class="ledger">
+          <div><dt>Edition</dt><dd>{pressing.release}</dd></div>
+          <div><dt>Method</dt><dd>Prepare → verify → publish</dd></div>
+          <div><dt>Source fingerprint</dt><dd class="digest">{pressing.source_tree_sha256}</dd></div>
+          <div><dt>Publication boundary</dt><dd>Static HTML & local media</dd></div>
+          <div><dt>What the hash means</dt><dd>Byte identity, not authorship or truth.</dd></div>
+        </dl>
+      </section>
+      <section class="return-note"><p>Before the pressing, there is the work.</p><a href="https://mazzeleczzare.com/studio/">Return to the bench <span aria-hidden="true">↗</span></a></section>
+    </main>
+    <footer><span>Studio / Mazze LeCzzare</span><span>Set locally. Served without a script.</span><a href="https://mazzeleczzare.com/">Back to the main site ↗</a></footer>
+  </body>
+</html>

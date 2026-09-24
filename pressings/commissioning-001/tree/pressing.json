@@ -1,0 +1,31 @@
+{
+  "entries": [
+    {
+      "bytes": 1447,
+      "date": "2026-09-20",
+      "description": "A commissioning specimen for a quieter kind of publishing. The work is prepared once, checked, and released as exact bytes.",
+      "sha256": "b6898d479faed9d0751682bec0fbca0d063d619352fd6bb36841cf0ba808578b",
+      "title": "The first impression",
+      "url": "/published/first-impression/"
+    },
+    {
+      "bytes": 230,
+      "date": null,
+      "description": null,
+      "sha256": "dc91259384b4ef489dff3ab3d3ef05724cefffadfbaf41dabfae341b8db05229",
+      "title": "Pressed works",
+      "url": "/published/"
+    },
+    {
+      "bytes": 730,
+      "date": null,
+      "description": null,
+      "sha256": "bb1071ab6e5d4189d6ce1c58aba80aabc6f1ef4e19ae3ef234e98ac68274c982",
+      "title": null,
+      "url": "/published/specimen.css"
+    }
+  ],
+  "release": "commissioning-001",
+  "schema": 1,
+  "source_tree_sha256": "622bdf9b0a22fef893a30145583aee93ba94e1d855a4c248e6d2db10f6f5be6a"
+}
