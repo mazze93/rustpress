@@ -7,3 +7,4 @@
 - 2026-09-20: ASCII paths only in v0.1; reject Unicode rather than claim incomplete cross-platform case folding.
 - 2026-09-20: Full-tree hashes detect corruption, not hostile re-signing. Deploy requires an independently reviewed seal digest.
 - 2026-09-20: Astro is fully static; no Cloudflare adapter or runtime Worker is needed. Cloudflare _headers supplies the CSP.
+- 2026-09-24: Resume one small checkpoint at a time to respect the user's constrained budget. Delegate test drafting to the on-device model; retain final validation before pushing. Reverse by explicitly selecting a different checkpoint, not silently expanding scope.

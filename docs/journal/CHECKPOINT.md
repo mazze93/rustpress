@@ -5,7 +5,18 @@
 - [x] Compiler and initial adversarial tests: 13 tests, formatting, and Clippy pass.
 - [x] Sealed Astro output and deployment CLI implemented; actual deployment untested.
 - [x] Studio UI implemented; browser validation and main-site integration incomplete.
-- [ ] CI, source push, preview, production verification.
+- [x] Source and sealed commissioning fixture pushed to public `mazze93/rustpress`.
+- [ ] CI, preview, production verification.
+
+## Active checkpoint: 2026-09-24
+
+- [x] Repository is clean and synchronized with origin/main at 05f3af0.
+- [x] Scope bounded to release-integrity regression tests.
+- [ ] On-device draft reviewed.
+- [ ] Tests, formatting, Clippy, and sealed fixture verification pass.
+- [ ] Results recorded, committed, and pushed.
+
+Stop after this checkpoint. No production deployment is authorized by this work.
 
 ## Production boundary
 
