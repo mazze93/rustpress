@@ -13,6 +13,13 @@ The following checks passed at the September 24, 2026 release-integrity checkpoi
 | `cargo clippy --locked --all-targets -- -D warnings` | Passed |
 | `cargo run --locked -- verify --site site --release commissioning-001` | Passed; 59 sealed files |
 
+CI pinning checkpoint (September 26): full-SHA checkout, repository-defined Rust
+1.98.1, and Ubuntu 24.04 passed remote metadata, formatting, lint, tests, and release
+build at commit e2899309b1f26328eb5a6ff33f0b3fbd727f2c62:
+https://github.com/mazze93/rustpress/actions/runs/36273904679.
+The hosted image is still mutable. Checkout v4 emits a Node 20-to-24 migration
+warning; a current-major action upgrade remains a separate reviewed change.
+
 Commissioning seal:
 
 ```text

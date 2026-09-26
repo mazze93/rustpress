@@ -6,7 +6,15 @@
 - [x] CI for d53ca6c passed: https://github.com/mazze93/rustpress/actions/runs/36273726212
 - [x] Immutable checkout reference and explicit repository-pinned Rust setup.
 - [x] CI-equivalent local checks pass: lock metadata, formatting, Clippy, 19 tests, release build.
-- [ ] Push and inspect remote validation for the exact commit.
+- [x] Pushed e2899309b1f26328eb5a6ff33f0b3fbd727f2c62 and confirmed successful remote CI:
+  https://github.com/mazze93/rustpress/actions/runs/36273904679
+
+Known non-blocking runner annotation: pinned checkout v4 declares Node 20 and GitHub
+forces it onto Node 24. The run passed; review a current checkout-major upgrade in a
+separate dependency checkpoint. No action upgrade was silently bundled into pinning.
+
+This checkpoint is complete. Next bounded feature-validation task: browser smoke
+test of the sealed Studio output, without rebuilding or publishing to production.
 
 Stop after recording this result. No deployment or credential changes.
 
