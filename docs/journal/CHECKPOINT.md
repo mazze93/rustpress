@@ -1,5 +1,15 @@
 # Checkpoint
 
+## Active checkpoint: CI pinning (2026-09-26)
+
+- [x] Clean checkout synchronized with origin/main at d53ca6c.
+- [x] Earlier upstream CI run passed; d53ca6c run was still in progress at inspection.
+- [ ] Immutable checkout reference and explicit repository-pinned Rust setup.
+- [ ] CI-equivalent local checks pass.
+- [ ] Push and inspect remote validation for the exact commit.
+
+Stop after recording this result. No deployment or credential changes.
+
 - [x] Read prior blueprint and current blog.
 - [x] Resolve GitHub account and repository inventory.
 - [x] Compiler and initial adversarial tests: 13 tests, formatting, and Clippy pass.

@@ -1,5 +1,13 @@
 # Rustpress delivery
 
+## Active checkpoint: CI pinning (2026-09-26)
+
+1. Inspect existing runs and save this plan.
+2. Pin checkout to a verified full commit; remove the mutable third-party Rust
+   action and read the exact toolchain from rust-toolchain.toml.
+3. Run the CI-equivalent checks locally, push, and inspect the exact remote run.
+4. Record evidence and stop. No deployments, secrets, dependency upgrades, or site changes.
+
 ## Active checkpoint: release-integrity regressions (2026-09-24)
 
 Bounded scope: one integration-test module, using the existing sealed fixture.
