@@ -12,11 +12,19 @@
 
 - [x] Repository is clean and synchronized with origin/main at 05f3af0.
 - [x] Scope bounded to release-integrity regression tests.
-- [ ] On-device draft reviewed.
-- [ ] Tests, formatting, Clippy, and sealed fixture verification pass.
-- [ ] Results recorded, committed, and pushed.
+- [x] On-device draft reviewed; rejected because it substituted mock data for the real fixture and did not demonstrate validation.
+- [x] Replaced with six real-fixture integration tests; all 19 tests pass.
+- [x] Formatting, Clippy, and pinned commissioning seal verification pass.
+- [x] Results recorded for the completed checkpoint commit.
+- Push confirmation: compare this checkpoint commit with origin/main.
 
 Stop after this checkpoint. No production deployment is authorized by this work.
+
+Concurrent upstream CI commits through 55095e4 were preserved by rebasing the test
+checkpoint, then rerunning all local checks successfully.
+
+Next bounded checkpoint: inspect the existing GitHub CI result and pin mutable
+action/toolchain references. Do not add deployment credentials or deployment jobs.
 
 ## Production boundary
 

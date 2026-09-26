@@ -8,3 +8,4 @@
 - 2026-09-20: Full-tree hashes detect corruption, not hostile re-signing. Deploy requires an independently reviewed seal digest.
 - 2026-09-20: Astro is fully static; no Cloudflare adapter or runtime Worker is needed. Cloudflare _headers supplies the CSP.
 - 2026-09-24: Resume one small checkpoint at a time to respect the user's constrained budget. Delegate test drafting to the on-device model; retain final validation before pushing. Reverse by explicitly selecting a different checkpoint, not silently expanding scope.
+- 2026-09-24: Reject the local-model test draft: it simulated fixtures, changed process-global environment, and claimed success without runnable evidence. Replace it with real-fixture tests and isolated child-process environment. Local model output remains a draft, never validation evidence.

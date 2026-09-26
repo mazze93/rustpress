@@ -9,7 +9,7 @@ No production-code, frontend, dependency, DNS, deployment, or CI changes.
 2. Use the on-device model to draft release-integrity tests in an isolated temporary directory.
 3. Review the returned file; run tests, formatting, Clippy, and fixture verification.
 4. Record measured results in CHECKPOINT.md and HANDOFF.md, commit, and push.
-5. Stop. Next checkpoint is secret-free CI, not production deployment.
+5. Stop. Next checkpoint is verification/hardening of the concurrently added secret-free CI, not production deployment.
 
 Acceptance: verification without mutable source/config; rejection of modified,
 missing, extra files and wrong reviewed digest; credential-free, non-mutating

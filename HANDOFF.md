@@ -4,11 +4,11 @@ Exported September 23, 2026 at the user's request to preserve the work immediate
 
 ## Verified in this workspace
 
-The following checks were rerun successfully immediately before export:
+The following checks passed at the September 24, 2026 release-integrity checkpoint:
 
 | Check | Result |
 | --- | --- |
-| `cargo test --locked --quiet` | 13 tests passed |
+| `cargo test --locked --quiet` | 19 tests passed: 13 corpus/security tests plus 6 release-integrity tests |
 | `cargo fmt --check` | Passed |
 | `cargo clippy --locked --all-targets -- -D warnings` | Passed |
 | `cargo run --locked -- verify --site site --release commissioning-001` | Passed; 59 sealed files |
@@ -28,6 +28,7 @@ The completed pressing contains the built Astro site plus the original site-inpu
 - `src/content.rs`: YAML frontmatter, drafts, HTML policy and rewriting, CSS token checks, asset signatures, generated index, and manifest verification.
 - `src/lib.rs`: site capture, temporary Astro build, bundle sealing, verification, and deployment projection.
 - `tests/security.rs`: adversarial and property tests.
+- `tests/release_integrity.rs`: real sealed-fixture verification, modified/extra/missing file rejection, wrong-digest rejection, and a credential-free CLI dry-run with before/after file and directory inventory checks.
 - `site/`: Astro Studio interface, local font dependencies, sitemap, CSP headers, pinned Wrangler config.
 - `content/reviewed/`: authored commissioning specimen only, not copied private writing.
 - `Cargo.lock` and `site/package-lock.json`: resolved dependency graphs.
@@ -37,14 +38,14 @@ The completed pressing contains the built Astro site plus the original site-inpu
 ## Not completed or verified
 
 - The public repository is a preservation checkpoint, not a production release.
-- No CI workflows or protected deployment environment were implemented.
+- A secret-free Rust CI workflow was added concurrently upstream and preserved. Its remote run is not yet confirmed here; action/toolchain references remain mutable. No protected deployment environment is configured by this checkpoint.
 - No change was made to the existing `mazze-leczzare-blog` repository.
 - `studio.mazzeleczzare.com` is the configured destination, not a confirmed live deployment.
 - Cloudflare hostname/account/DNS inspection and production deployment remain unfinished.
 - Actual Wrangler deployment, remote version capture, rollback, and post-deploy HTTP checks have not been exercised.
 - Browser screenshots, mobile/accessibility checks, and full internal site-link crawling remain unperformed.
 - `astro check`, npm vulnerability audit, and Cargo vulnerability audit have not been completed.
-- Release-level regression coverage is incomplete: full CLI deployment failure paths, concurrent races, atomic durability under crashes, and extra-file seal tampering need broader integration tests.
+- Release-level regression coverage now includes modified, extra, and missing files plus digest mismatch and dry-run non-mutation. Actual deployment failure paths, concurrent races, and atomic durability under crashes remain untested.
 
 ## Security boundaries and known limitations
 
@@ -64,9 +65,9 @@ The completed pressing contains the built Astro site plus the original site-inpu
 
 ## Next honest engineering steps
 
-1. Save this checkpoint to a repository without treating it as a production release.
-2. Expand release-level tests; verify the sealed output in a browser; complete dependency auditing.
-3. Add separate secret-free verification and digest-pinned, approval-gated deployment workflows.
+1. Confirm the existing secret-free CI run and pin its mutable action/toolchain references.
+2. Verify the sealed output in a browser; complete dependency auditing and further release-level tests.
+3. Add a separate digest-pinned, approval-gated deployment workflow after those checks.
 4. Inspect Cloudflare accounts, zone, hostname records, and any existing Worker bindings.
 5. Review the exact sealed public payload and hostname mutation before deploying.
 6. Verify HTTP status, security headers, public hashes, and deployment version after upload.
