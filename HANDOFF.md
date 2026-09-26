@@ -17,8 +17,8 @@ CI pinning checkpoint (September 26): full-SHA checkout, repository-defined Rust
 1.98.1, and Ubuntu 24.04 passed remote metadata, formatting, lint, tests, and release
 build at commit e2899309b1f26328eb5a6ff33f0b3fbd727f2c62:
 https://github.com/mazze93/rustpress/actions/runs/36273904679.
-The hosted image is still mutable. Checkout v4 emits a Node 20-to-24 migration
-warning; a current-major action upgrade remains a separate reviewed change.
+Checkout upgraded to actions/checkout v7.0.1 (SHA 3d3c42e5, Node 24) at commit
+0983b22e3c2797190eee6f819c54b38d566c1738; Node 20 deprecation warning resolved.
 
 Commissioning seal:
 
@@ -47,8 +47,8 @@ The completed pressing contains the built Astro site plus the original site-inpu
 - The public repository is a preservation checkpoint, not a production release.
 - Secret-free Rust CI passed for the release-integrity checkpoint: https://github.com/mazze93/rustpress/actions/runs/36273726212. Checkout is now full-SHA pinned and Rust is selected from the exact repository toolchain version; remote validation of this workflow change is recorded in docs/journal/CHECKPOINT.md. No protected deployment environment is configured.
 - No change was made to the existing `mazze-leczzare-blog` repository.
-- `studio.mazzeleczzare.com` is the configured destination, not a confirmed live deployment.
-- Cloudflare hostname/account/DNS inspection and production deployment remain unfinished.
+- `press.mazzeleczzare.com` is the configured destination; `studio.mazzeleczzare.com` hosts a separate live Worker and must not be overwritten.
+- Cloudflare DNS for `press.mazzeleczzare.com` has not been verified; no record may exist yet.
 - Actual Wrangler deployment, remote version capture, rollback, and post-deploy HTTP checks have not been exercised.
 - Browser screenshots, mobile/accessibility checks, and full internal site-link crawling remain unperformed.
 - `astro check`, npm vulnerability audit, and Cargo vulnerability audit have not been completed.
@@ -73,12 +73,12 @@ The completed pressing contains the built Astro site plus the original site-inpu
 ## Next honest engineering steps
 
 1. Read docs/journal/CHECKPOINT.md for the latest CI evidence before selecting the next bounded task.
-2. Verify the sealed output in a browser; complete dependency auditing and further release-level tests.
-3. Add a separate digest-pinned, approval-gated deployment workflow after those checks.
-4. Inspect Cloudflare accounts, zone, hostname records, and any existing Worker bindings.
-5. Review the exact sealed public payload and hostname mutation before deploying.
+2. Run `astro check`, `npm audit`, and `cargo audit` locally; resolve any findings before deploy.
+3. Build and smoke-test the Astro output locally: `npm run build && npx wrangler dev --local`.
+4. Verify `press.mazzeleczzare.com` DNS — no record should exist yet; Wrangler custom domain will create it.
+5. Deploy: `npm run build && npx wrangler deploy` from `site/`.
 6. Verify HTTP status, security headers, public hashes, and deployment version after upload.
-7. Add a main-site Studio link only after the subdomain works.
+7. Add a main-site link only after the subdomain is confirmed live.
 
 ## Deployment design references
 

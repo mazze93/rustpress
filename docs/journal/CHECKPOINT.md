@@ -1,5 +1,16 @@
 # Checkpoint
 
+## Active checkpoint: hostname retarget (2026-09-26)
+
+- [x] Cloudflare account confirmed: `Personal and Nonprofit Projects` / `a478cd1d`.
+- [x] `studio.mazzeleczzare.com` has an existing live Worker (17 deployments, last 3 months ago). Must not be overwritten.
+- [x] Deployment retargeted to `press.mazzeleczzare.com`; Worker renamed `rustpress-press` in `wrangler.json`.
+- [x] `npm ci` clean: 0 vulnerabilities, 303 packages. Four packages have unapproved install scripts (esbuild x2, workerd, fsevents); review before deploy.
+- [ ] `press.mazzeleczzare.com` DNS not yet verified — expected to be absent; Wrangler will create on first deploy.
+- [ ] `astro check`, `npm audit`, `cargo audit` not yet run.
+- [ ] Local build and smoke test not yet performed.
+- [ ] Production deployment not yet performed.
+
 ## Active checkpoint: CI pinning (2026-09-26)
 
 - [x] Clean checkout synchronized with origin/main at d53ca6c.
@@ -8,15 +19,10 @@
 - [x] CI-equivalent local checks pass: lock metadata, formatting, Clippy, 19 tests, release build.
 - [x] Pushed e2899309b1f26328eb5a6ff33f0b3fbd727f2c62 and confirmed successful remote CI:
   https://github.com/mazze93/rustpress/actions/runs/36273904679
+- [x] Upgraded actions/checkout to v7.0.1 (SHA 3d3c42e5, Node 24); Node 20 deprecation resolved at 0983b22.
+- [x] Regressive PR #3 (floating runner/toolchain/checkout) closed without merge.
 
-Known non-blocking runner annotation: pinned checkout v4 declares Node 20 and GitHub
-forces it onto Node 24. The run passed; review a current checkout-major upgrade in a
-separate dependency checkpoint. No action upgrade was silently bundled into pinning.
-
-This checkpoint is complete. Next bounded feature-validation task: browser smoke
-test of the sealed Studio output, without rebuilding or publishing to production.
-
-Stop after recording this result. No deployment or credential changes.
+This checkpoint is complete. Next: run audits, local build, smoke test, then deploy.
 
 - [x] Read prior blueprint and current blog.
 - [x] Resolve GitHub account and repository inventory.
@@ -46,8 +52,10 @@ action/toolchain references. Do not add deployment credentials or deployment job
 
 ## Production boundary
 
-Cloudflare account, hostname, and DNS inspection is incomplete.
-Production payload and any hostname changes require review. Never include credentials in exports.
+Cloudflare account confirmed: `Personal and Nonprofit Projects` / `a478cd1da11cbde86fb26a63697c34e0`.
+`studio.mazzeleczzare.com` is occupied by a separate live Worker — do not deploy there.
+`press.mazzeleczzare.com` is the confirmed deployment target.
+Never include credentials in exports.
 
 ## To resume
 
