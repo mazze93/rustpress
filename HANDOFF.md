@@ -38,7 +38,7 @@ The completed pressing contains the built Astro site plus the original site-inpu
 ## Not completed or verified
 
 - The public repository is a preservation checkpoint, not a production release.
-- A secret-free Rust CI workflow was added concurrently upstream and preserved. Its remote run is not yet confirmed here; action/toolchain references remain mutable. No protected deployment environment is configured by this checkpoint.
+- Secret-free Rust CI passed for the release-integrity checkpoint: https://github.com/mazze93/rustpress/actions/runs/36273726212. Checkout is now full-SHA pinned and Rust is selected from the exact repository toolchain version; remote validation of this workflow change is recorded in docs/journal/CHECKPOINT.md. No protected deployment environment is configured.
 - No change was made to the existing `mazze-leczzare-blog` repository.
 - `studio.mazzeleczzare.com` is the configured destination, not a confirmed live deployment.
 - Cloudflare hostname/account/DNS inspection and production deployment remain unfinished.
@@ -65,7 +65,7 @@ The completed pressing contains the built Astro site plus the original site-inpu
 
 ## Next honest engineering steps
 
-1. Confirm the existing secret-free CI run and pin its mutable action/toolchain references.
+1. Read docs/journal/CHECKPOINT.md for the latest CI evidence before selecting the next bounded task.
 2. Verify the sealed output in a browser; complete dependency auditing and further release-level tests.
 3. Add a separate digest-pinned, approval-gated deployment workflow after those checks.
 4. Inspect Cloudflare accounts, zone, hostname records, and any existing Worker bindings.

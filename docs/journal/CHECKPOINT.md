@@ -3,9 +3,9 @@
 ## Active checkpoint: CI pinning (2026-09-26)
 
 - [x] Clean checkout synchronized with origin/main at d53ca6c.
-- [x] Earlier upstream CI run passed; d53ca6c run was still in progress at inspection.
-- [ ] Immutable checkout reference and explicit repository-pinned Rust setup.
-- [ ] CI-equivalent local checks pass.
+- [x] CI for d53ca6c passed: https://github.com/mazze93/rustpress/actions/runs/36273726212
+- [x] Immutable checkout reference and explicit repository-pinned Rust setup.
+- [x] CI-equivalent local checks pass: lock metadata, formatting, Clippy, 19 tests, release build.
 - [ ] Push and inspect remote validation for the exact commit.
 
 Stop after recording this result. No deployment or credential changes.

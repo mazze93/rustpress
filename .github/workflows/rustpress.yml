@@ -17,18 +17,23 @@ env:
 jobs:
   test:
     name: Test and lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
       - name: Check out exact revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Install stable Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install repository-pinned Rust
+        shell: bash
+        run: |
+          toolchain="$(python3 -c 'import re, tomllib; t = tomllib.load(open("rust-toolchain.toml", "rb"))["toolchain"]["channel"]; assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", t), "exact Rust version required"; print(t)')"
+          rustup toolchain install "$toolchain" --profile minimal --component rustfmt --component clippy
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          rustup run "$toolchain" rustc --version
 
       - name: Validate dependency lockfile
         run: cargo metadata --locked --format-version 1 > /dev/null
