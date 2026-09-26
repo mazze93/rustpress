@@ -20,4 +20,4 @@ export const pressing = JSON.parse(
   readFileSync(resolve(process.cwd(), "public/pressing.json"), "utf8"),
 ) as Pressing;
 export const works = pressing.entries.filter((entry) => entry.url !== "/published/" && entry.url.endsWith("/"));
-export const site = "https://studio.mazzeleczzare.com";
+export const site = "https://press.mazzeleczzare.com";
