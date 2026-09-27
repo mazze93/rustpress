@@ -89,15 +89,23 @@ this policy. The boundary is intentional: `content::validate_pressed` re-validat
 the corpus subset of a sealed release against the same policy, but the surrounding
 site template is out of scope for that check.
 
-### The site cannot build standalone
+### The site cannot build standalone (mostly)
 
 `site/src/data.ts` reads `public/pressing.json` at build time with no fallback —
-`astro build` from an empty/fresh checkout will fail. `pressing.json` and
-`public/published/` are generated artifacts of `rustpress stage`, not checked-in
-sample data. To build/test the Astro site locally you need a real pressed release;
-see the "Verify the included pressing" steps in `README.md` to restore
-`pressings/commissioning-001/` into `site/.rustpress/releases/` first, then run
-`stage`/`verify` against it, or press a new release from `content/reviewed/`.
+without it, `astro build`/`astro check` fail outright. `pressing.json` is
+normally a generated artifact of `rustpress stage` (written into the temp build
+workspace), but a snapshot of it **is** checked into `site/public/pressing.json`
+specifically so a fresh checkout can run `astro check`/`npm run build` directly.
+Whoever presses a new release should update that checked-in copy from the new
+release's `pressing.json` (matching content, just a different `release` label)
+so it doesn't silently describe a stale edition — nothing enforces this
+automatically. `public/published/` (the actual corpus HTML) is **not** checked
+in and stays a generated, gitignored-in-spirit artifact; to exercise the full
+`stage`/`verify`/`deploy` pipeline (not just `astro check`) you need a real
+pressed release — see the "Verify the included pressing" steps in `README.md`
+to restore `pressings/commissioning-001/` into `site/.rustpress/releases/`
+first, then run `stage`/`verify` against it, or press a new release from
+`content/reviewed/`.
 
 `site_snapshot` in `src/lib.rs` also enforces invariants on `site/` itself before
 staging will proceed: `package.json`'s build script must be exactly `astro build`,
