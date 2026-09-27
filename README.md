@@ -9,7 +9,7 @@ Repository: [mazze93/rustpress](https://github.com/mazze93/rustpress).
 - `stage`: inspect an explicitly selected HTML corpus, rewrite local links, exclude drafts, build Astro in a temporary workspace, and seal the complete deployment output.
 - `verify`: check the sealed inventory and hashes, reapply corpus policy, and optionally compare against an independently retained digest. Does not need the original corpus.
 - `deploy`: require a reviewed seal digest, project the sealed output, install locked tooling, and invoke the pinned Wrangler executable without rebuilding the site. Deployment receipts live outside the pressing.
-- A static Astro archive configured for `studio.mazzeleczzare.com`, with local fonts, a public manifest, sitemap, security headers, and a commissioning specimen.
+- A static Astro archive configured for `press.mazzeleczzare.com`, with local fonts, a public manifest, sitemap, security headers, and a commissioning specimen. `studio.mazzeleczzare.com` is a separate, unrelated live site and must never be a deployment target for this project.
 
 See [HANDOFF.md](HANDOFF.md) for exact validation evidence, remaining work, and security limitations.
 

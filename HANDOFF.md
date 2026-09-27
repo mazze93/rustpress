@@ -12,6 +12,11 @@ The following checks passed at the September 24, 2026 release-integrity checkpoi
 | `cargo fmt --check` | Passed |
 | `cargo clippy --locked --all-targets -- -D warnings` | Passed |
 | `cargo run --locked -- verify --site site --release commissioning-001` | Passed; 59 sealed files |
+| `astro check` (site/, 2026-09-26) | Passed; 0 errors, 0 warnings, 0 hints |
+| `cargo audit` (2026-09-26, 135 crates) | Passed; 0 advisories |
+| `npm audit` (site/, 2026-09-26, 426 packages) | Passed; 0 vulnerabilities |
+| `cargo run --locked -- stage` (2026-09-27, `commissioning-002`) | Passed; 59 sealed files, seal `1b5979f2cd05549b4abf96feb571f4d608b6c190bf4e45170e2c2e71cf1a3485` |
+| `cargo run --locked -- deploy` (2026-09-27, `commissioning-002`, real Wrangler deploy) | Passed; live at `press.mazzeleczzare.com`, Version ID `ac267804-8ed5-4d0a-8c42-84e1599f2de4` |
 
 CI pinning checkpoint (September 26): full-SHA checkout, repository-defined Rust
 1.98.1, and Ubuntu 24.04 passed remote metadata, formatting, lint, tests, and release
@@ -47,11 +52,12 @@ The completed pressing contains the built Astro site plus the original site-inpu
 - The public repository is a preservation checkpoint, not a production release.
 - Secret-free Rust CI passed for the release-integrity checkpoint: https://github.com/mazze93/rustpress/actions/runs/36273726212. Checkout is now full-SHA pinned and Rust is selected from the exact repository toolchain version; remote validation of this workflow change is recorded in docs/journal/CHECKPOINT.md. No protected deployment environment is configured.
 - No change was made to the existing `mazze-leczzare-blog` repository.
-- `press.mazzeleczzare.com` is the configured destination; `studio.mazzeleczzare.com` hosts a separate live Worker and must not be overwritten.
-- Cloudflare DNS for `press.mazzeleczzare.com` has not been verified; no record may exist yet.
-- Actual Wrangler deployment, remote version capture, rollback, and post-deploy HTTP checks have not been exercised.
+- `press.mazzeleczzare.com` is the sole canonical Rustpress destination. `studio.mazzeleczzare.com` is a separate, unrelated, auth-backed live site (the owner's music project, protected by Cloudflare Access) and must never be a Rustpress deploy target.
+- Cloudflare DNS for `press.mazzeleczzare.com` already existed from an earlier out-of-band deployment (confirmed 2026-09-26, HTTP 200, edition `commissioning-001`, but with stale `studio.mazzeleczzare.com` canonical/OG tags and sitemap URLs baked in). **Corrected 2026-09-27**: pressed `commissioning-002` from the fixed source (`astro.config.mjs`, `site/src/data.ts`, `site/public/robots.txt`) and deployed it for real via `cargo run --locked -- deploy` — live site now verified serving `press.mazzeleczzare.com` in its canonical/OG tags, sitemap, and robots.txt (Cloudflare Version ID `ac267804-8ed5-4d0a-8c42-84e1599f2de4`). `studio.mazzeleczzare.com` confirmed untouched (still its own Cloudflare-Access-protected login redirect) before and after.
+- Discovered and fixed in the same run: `stage`/`deploy` could not complete on stock macOS at all — `tempfile::tempdir()` resolves to `$TMPDIR` (`/var/folders/...`), and `/var` is a standard macOS symlink to `/private/var`, which `paths::no_symlinks` rejected as if it were an attacker-planted symlink, before ever reaching real content. Fixed by canonicalizing the build/deploy temp-workspace root once, immediately after `tempfile::tempdir()?` creates it (`src/lib.rs`); `no_symlinks` still fully applies to everything inside that root and to all user-supplied `site`/`source` trees, so the security guarantee for those is unchanged (`tests/security.rs` symlink tests still pass unmodified).
+- Actual Wrangler deployment, remote version capture, and post-deploy HTTP verification have now been exercised through this CLI end to end (2026-09-27). Rollback and deployment-failure-path behavior remain untested.
 - Browser screenshots, mobile/accessibility checks, and full internal site-link crawling remain unperformed.
-- `astro check`, npm vulnerability audit, and Cargo vulnerability audit have not been completed.
+- `astro check`, `cargo audit`, and `npm audit` all passed (2026-09-26); see the table above. Both audits are now wired as a non-blocking `audit` job in CI (`.github/workflows/rustpress.yml`) so future advisory disclosures are surfaced without gating merges — a human reviews findings deliberately rather than being auto-blocked.
 - Release-level regression coverage now includes modified, extra, and missing files plus digest mismatch and dry-run non-mutation. Actual deployment failure paths, concurrent races, and atomic durability under crashes remain untested.
 
 ## Security boundaries and known limitations
@@ -72,13 +78,11 @@ The completed pressing contains the built Astro site plus the original site-inpu
 
 ## Next honest engineering steps
 
-1. Read docs/journal/CHECKPOINT.md for the latest CI evidence before selecting the next bounded task.
-2. Run `astro check`, `npm audit`, and `cargo audit` locally; resolve any findings before deploy.
-3. Build and smoke-test the Astro output locally: `npm run build && npx wrangler dev --local`.
-4. Verify `press.mazzeleczzare.com` DNS — no record should exist yet; Wrangler custom domain will create it.
-5. Deploy: `npm run build && npx wrangler deploy` from `site/`.
-6. Verify HTTP status, security headers, public hashes, and deployment version after upload.
-7. Add a main-site link only after the subdomain is confirmed live.
+1. ~~Press a fresh release and deploy it now that the canonical-hostname fix is in~~ — done 2026-09-27: `commissioning-002` staged, verified, and deployed live to `press.mazzeleczzare.com` (Version ID `ac267804-8ed5-4d0a-8c42-84e1599f2de4`); confirmed `studio.mazzeleczzare.com` untouched.
+2. Read docs/journal/CHECKPOINT.md for the latest CI evidence before selecting the next bounded task.
+3. Run `astro check`, `npm audit`, and `cargo audit` locally on future changes; both audits are also wired as a non-blocking CI job.
+4. Add a main-site link now that the corrected subdomain content is confirmed live.
+5. Exercise a deployment-failure path deliberately (e.g. an invalid Wrangler config) to confirm the `unknown`-status receipt behavior documented under "Security boundaries."
 
 ## Deployment design references
 

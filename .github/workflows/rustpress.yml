@@ -49,3 +49,45 @@ jobs:
 
       - name: Build release binary
         run: cargo build --locked --release
+
+  audit:
+    name: Dependency audit (non-blocking)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # Surfaces new advisories without failing the build; a human reviews and
+    # resolves findings deliberately rather than being blocked by an upstream
+    # disclosure. See docs/journal/CHECKPOINT.md for the last reviewed result.
+    continue-on-error: true
+
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Install repository-pinned Rust
+        shell: bash
+        continue-on-error: true
+        run: |
+          toolchain="$(python3 -c 'import re, tomllib; t = tomllib.load(open("rust-toolchain.toml", "rb"))["toolchain"]["channel"]; assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", t), "exact Rust version required"; print(t)')"
+          rustup toolchain install "$toolchain" --profile minimal
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+
+      - name: cargo audit
+        continue-on-error: true
+        run: |
+          cargo install cargo-audit --locked
+          cargo audit
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: site/.nvmrc
+
+      - name: npm audit
+        working-directory: site
+        continue-on-error: true
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm audit --audit-level=low

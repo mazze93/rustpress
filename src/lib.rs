@@ -269,8 +269,12 @@ pub fn stage(source: &Path, site: &Path, release: &str, previous: Option<&str>) 
     let corpus = content::compile(source_files, config.max_html_bytes)?;
     content::validate_pressed(&corpus.entries, &corpus.tree)?;
     let build = tempfile::tempdir()?;
-    write_tree(build.path(), &settings)?;
-    write_tree(&build.path().join("public/published"), &corpus.tree)?;
+    // Canonicalize once: on macOS the system temp root is reached only through
+    // /var -> /private/var, a standard OS symlink no_symlinks would otherwise
+    // reject on every subsequent snapshot of this directory we just created.
+    let build_root = build.path().canonicalize()?;
+    write_tree(&build_root, &settings)?;
+    write_tree(&build_root.join("public/published"), &corpus.tree)?;
     // Public manifest deliberately excludes filesystem sources and input paths.
     let public = serde_json::json!({
         "schema": 1, "release": release, "source_tree_sha256": corpus.source_digest,
@@ -280,15 +284,15 @@ pub fn stage(source: &Path, site: &Path, release: &str, previous: Option<&str>) 
             "date": e.metadata.date
         })).collect::<Vec<_>>()
     });
-    fs::write(build.path().join("public/pressing.json"), json(&public)?)?;
+    fs::write(build_root.join("public/pressing.json"), json(&public)?)?;
     run(
         "npm",
         &["ci", "--ignore-scripts", "--no-audit", "--no-fund"],
-        build.path(),
+        &build_root,
         false,
     )?;
-    run("npm", &["run", "build"], build.path(), false)?;
-    let dist = paths::snapshot(&build.path().join("dist"), MAX_FILES, MAX_TOTAL, MAX_FILE)?;
+    run("npm", &["run", "build"], &build_root, false)?;
+    let dist = paths::snapshot(&build_root.join("dist"), MAX_FILES, MAX_TOTAL, MAX_FILE)?;
     for (name, bytes) in &corpus.tree {
         ensure!(
             dist.get(&format!("published/{name}")) == Some(bytes),
@@ -453,6 +457,7 @@ pub fn deploy(site: &Path, release: &str, expect: &str, dry_run: bool) -> Result
     lock.try_lock_exclusive()
         .context("another deployment is in progress")?;
     let workspace = tempfile::tempdir()?;
+    let workspace_root = workspace.path().canonicalize()?;
     let mut projection = BTreeMap::new();
     for (name, bytes) in &verified.files {
         if let Some(path) = name.strip_prefix("tree/") {
@@ -465,16 +470,16 @@ pub fn deploy(site: &Path, release: &str, expect: &str, dry_run: bool) -> Result
             verified.files[&format!("inputs/{name}")].clone(),
         );
     }
-    write_tree(workspace.path(), &projection)?;
+    write_tree(&workspace_root, &projection)?;
     run(
         "npm",
         &["ci", "--ignore-scripts", "--no-audit", "--no-fund"],
-        workspace.path(),
+        &workspace_root,
         false,
     )?;
-    let local = workspace.path().join("node_modules/.bin/wrangler");
+    let local = workspace_root.join("node_modules/.bin/wrangler");
     let package: serde_json::Value = serde_json::from_slice(&paths::read(
-        &workspace.path().join("node_modules/wrangler/package.json"),
+        &workspace_root.join("node_modules/wrangler/package.json"),
         MAX_FILE,
     )?)?;
     let expected_package: serde_json::Value =
@@ -483,12 +488,7 @@ pub fn deploy(site: &Path, release: &str, expect: &str, dry_run: bool) -> Result
         package["version"] == expected_package["devDependencies"]["wrangler"],
         "Wrangler version mismatch"
     );
-    let copied = paths::snapshot(
-        &workspace.path().join("dist"),
-        MAX_FILES,
-        MAX_TOTAL,
-        MAX_FILE,
-    )?;
+    let copied = paths::snapshot(&workspace_root.join("dist"), MAX_FILES, MAX_TOTAL, MAX_FILE)?;
     for (name, bytes) in &copied {
         ensure!(
             verified.files.get(&format!("tree/{name}")) == Some(bytes),
@@ -510,7 +510,7 @@ pub fn deploy(site: &Path, release: &str, expect: &str, dry_run: bool) -> Result
     let result = run(
         local.to_str().context("non UTF-8 tool path")?,
         &["deploy", "--config", "wrangler.json"],
-        workspace.path(),
+        &workspace_root,
         true,
     );
     let final_receipt = serde_json::json!({
