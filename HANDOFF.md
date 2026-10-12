@@ -2,6 +2,16 @@
 
 Exported September 23, 2026 at the user's request to preserve the work immediately, then prepared for the public `mazze93/rustpress` repository. This is actual implementation code and a sealed build, not the earlier blueprint. Repository publication is not production deployment; the product is not yet shipped end to end.
 
+## Latest frontend release
+
+The Rustpress archive and designed 404 are live as `commissioning-005` (2026-10-11),
+with the complete sealed bundle preserved under `pressings/commissioning-005/`.
+See [the frontend run report](docs/journal/FRONTEND-2026-10-11.md) for design changes,
+responsive/keyboard/contrast evidence, release seal, deployment version, and checks.
+Live edge script injection changes HTML response bytes; the recorded manifest
+hashes identify sealed files, not transformed HTTP responses. This limitation
+remains unresolved.
+
 ## Verified in this workspace
 
 The following checks passed at the September 24, 2026 release-integrity checkpoint:
@@ -56,7 +66,7 @@ The completed pressing contains the built Astro site plus the original site-inpu
 - Cloudflare DNS for `press.mazzeleczzare.com` already existed from an earlier out-of-band deployment (confirmed 2026-09-26, HTTP 200, edition `commissioning-001`, but with stale `studio.mazzeleczzare.com` canonical/OG tags and sitemap URLs baked in). **Corrected 2026-09-27**: pressed `commissioning-002` from the fixed source (`astro.config.mjs`, `site/src/data.ts`, `site/public/robots.txt`) and deployed it for real via `cargo run --locked -- deploy` — live site now verified serving `press.mazzeleczzare.com` in its canonical/OG tags, sitemap, and robots.txt (Cloudflare Version ID `ac267804-8ed5-4d0a-8c42-84e1599f2de4`). `studio.mazzeleczzare.com` confirmed untouched (still its own Cloudflare-Access-protected login redirect) before and after.
 - Discovered and fixed in the same run: `stage`/`deploy` could not complete on stock macOS at all — `tempfile::tempdir()` resolves to `$TMPDIR` (`/var/folders/...`), and `/var` is a standard macOS symlink to `/private/var`, which `paths::no_symlinks` rejected as if it were an attacker-planted symlink, before ever reaching real content. Fixed by canonicalizing the build/deploy temp-workspace root once, immediately after `tempfile::tempdir()?` creates it (`src/lib.rs`); `no_symlinks` still fully applies to everything inside that root and to all user-supplied `site`/`source` trees, so the security guarantee for those is unchanged (`tests/security.rs` symlink tests still pass unmodified).
 - Actual Wrangler deployment, remote version capture, and post-deploy HTTP verification have now been exercised through this CLI end to end (2026-09-27). Rollback and deployment-failure-path behavior remain untested.
-- Browser screenshots, mobile/accessibility checks, and full internal site-link crawling remain unperformed.
+- Frontend browser/responsive/keyboard/contrast and local-link checks were performed on 2026-10-11; see the frontend run report. A comprehensive accessibility audit remains unperformed.
 - `astro check`, `cargo audit`, and `npm audit` all passed (2026-09-26); see the table above. Both audits are now wired as a non-blocking `audit` job in CI (`.github/workflows/rustpress.yml`) so future advisory disclosures are surfaced without gating merges — a human reviews findings deliberately rather than being auto-blocked.
 - Release-level regression coverage now includes modified, extra, and missing files plus digest mismatch and dry-run non-mutation. Actual deployment failure paths, concurrent races, and atomic durability under crashes remain untested.
 

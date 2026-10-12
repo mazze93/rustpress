@@ -1,5 +1,17 @@
 # Checkpoint
 
+## Current checkpoint: frontend deployed (2026-10-11)
+
+- Rustpress letterpress redesign and styled 404 deployed as commissioning-005.
+- Seal: `a8bfbc9da2f50cfd667ac4ad50fc1aaf06c4f5cf6a11dc3c0d3c2f4a62131c38`.
+- Version: `c5266cbe-fa7e-4996-af9f-e5969e10018b`.
+- Source manifest synced; full bundle preserved in pressings/commissioning-005.
+- Browser, responsive, keyboard, contrast, link, sealed-hash, and live checks
+  recorded in [the frontend run report](FRONTEND-2026-10-11.md).
+- Live HTML is transformed by edge WebMCP/challenge injection; HTTP hashes do not
+  match the seal. This is an unresolved delivery-boundary limitation. Proof copy
+  now explicitly refers to sealed files/deployment payload.
+
 ## Active checkpoint: corrected release deployed (2026-09-27)
 
 - [x] Found and fixed a real cross-platform bug: `stage`/`deploy` could not run at

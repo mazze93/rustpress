@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://press.mazzeleczzare.com/sitemap.xml
