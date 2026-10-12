@@ -10,7 +10,8 @@ See [the frontend run report](docs/journal/FRONTEND-2026-10-11.md) for design ch
 responsive/keyboard/contrast evidence, release seal, deployment version, and checks.
 Live edge script injection changes HTML response bytes; the recorded manifest
 hashes identify sealed files, not transformed HTTP responses. This limitation
-remains unresolved.
+remains unresolved. Current npm audit reports 7 affected packages (5 high,
+2 moderate); the September clean result below is historical. See the run report.
 
 ## Verified in this workspace
 
