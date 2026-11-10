@@ -1,0 +1,4 @@
+max_files = 2000
+max_total_bytes = 100000000
+max_html_bytes = 2000000
+max_asset_bytes = 10000000
