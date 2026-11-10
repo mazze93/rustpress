@@ -52,7 +52,7 @@ The completed pressing contains the built Astro site plus the original site-inpu
 - `src/lib.rs`: site capture, temporary Astro build, bundle sealing, verification, and deployment projection.
 - `tests/security.rs`: adversarial and property tests.
 - `tests/release_integrity.rs`: real sealed-fixture verification, modified/extra/missing file rejection, wrong-digest rejection, and a credential-free CLI dry-run with before/after file and directory inventory checks.
-- `site/`: Astro Studio interface, local font dependencies, sitemap, CSP headers, pinned Wrangler config.
+- `site/`: Astro archive for `press.mazzeleczzare.com` (Worker `rustpress-press`), local font dependencies, sitemap, CSP headers, pinned Wrangler config. Not `studio.mazzeleczzare.com`.
 - `content/reviewed/`: authored commissioning specimen only, not copied private writing.
 - `Cargo.lock` and `site/package-lock.json`: resolved dependency graphs.
 - `docs/journal/`: plan, decisions, and checkpoint.

@@ -42,10 +42,10 @@ review findings deliberately rather than treating a red audit job as a required
 check. Last manually reviewed 2026-09-26: both clean (0 advisories / 0
 vulnerabilities); see `HANDOFF.md`.
 
-**`press.mazzeleczzare.com` is the only valid Rustpress deploy target.**
-`studio.mazzeleczzare.com` is a separate, unrelated, auth-backed live site (the
-owner's music project) — never point `wrangler.json`, `astro.config.mjs`, `site/src/data.ts`,
-or `site/public/robots.txt` at it.
+**Live site: `https://press.mazzeleczzare.com/` only** (Worker `rustpress-press`).
+`studio.mazzeleczzare.com` is a separate, unrelated, auth-backed music site —
+never point `wrangler.json`, `astro.config.mjs`, `site/src/data.ts`,
+`site/public/robots.txt`, README, or GitHub About at it.
 
 ## Architecture
 
