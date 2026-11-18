@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rust Field Guide · A working field guide, rustc 1.100.0</title>
+<meta name="description" content="A practical, source-linked Rust primer for stable 1.100.0 and edition 2024. Every example was compiled by the pinned compiler at build time.">
+<meta name="author" content="Mazze LeCzzare">
+<meta name="date" content="2026-11-18">
+<link rel="stylesheet" href="/published/field-guide.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <a class="wordmark" href="#main">RUST / THE WORKING FIELD GUIDE</a>
+  <span class="stamp">Edition 02 · rustc 1.100.0 · verified at build</span>
+</header>
+<nav class="chapternav" aria-label="Chapters">
+<a href="#start">01 · Start</a>
+<a href="#current">02 · Current</a>
+<a href="#syntax">03 · Syntax</a>
+<a href="#ownership">04 · Ownership</a>
+<a href="#lifetimes">05 · Lifetimes</a>
+<a href="#model">06 · Model</a>
+<a href="#errors">07 · Errors</a>
+<a href="#collections">08 · Collections</a>
+<a href="#abstraction">09 · Abstraction</a>
+<a href="#concurrency">10 · Concurrency</a>
+<a href="#workflow">11 · Workflow</a>
+<a href="#judgment">12 · Judgment</a>
+<a href="#practice">13 · Practice</a>
+<a href="#maintenance">14 · Maintenance</a>
+<a href="#sources">15 · Sources</a>
+</nav>
+<main id="main">
+<div class="hero">
+  <p class="eyebrow">A practical primer for people who build</p>
+  <h1>Make it work.<br>Know <em>why.</em></h1>
+  <p class="intro">Rust turns questions about ownership, failure and concurrency into decisions you can inspect. Learn the language by making those decisions visible.</p>
+  <dl class="hero-facts">
+    <div><dt>Compiler</dt><dd>rustc 1.100.0</dd></div>
+    <div><dt>Edition</dt><dd>2024</dd></div>
+    <div><dt>Examples</dt><dd>15 compiler-checked (12 run, 3 rejected on purpose)</dd></div>
+    <div><dt>Sources</dt><dd>25 primary-source links</dd></div>
+  </dl>
+</div>
+<section id="start" class="chapter"><div class="chapter-title"><span class="index">01</span><div><h2>Your first working loop</h2><p class="deck">Build a small thing. Keep the feedback close.</p></div></div>
+<p>Start with the included <strong>Signal Notebook</strong>: a command-line program that reads integer scores, validates them, and reports their mean. It has no third-party dependencies. You can follow every value from file input through a typed domain model to output.</p>
+<div class="codebox"><div class="codehead"><span>shell</span></div><pre><code>cd starter    # inside the rust-studio repository
+# If this shell cannot find Cargo:
+source &quot;$HOME/.cargo/env&quot;
+cargo run -- scores.txt
+cargo test
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check</code></pre></div>
+<p>Expected program output, as recorded by the last verified build: <code>4 scores · mean 62.50</code>. The full source is on the <a href="https://github.com/mazze93/rust-studio/tree/main/starter">starter page</a>. Open the <code>starter</code> folder in Zed. Rust support is built in; this project asks rust-analyzer to run Clippy for saved-file diagnostics. The terminal workflow works independently of editor setup.</p>
+<div class="split"><div><h3>Know the four names</h3><dl><dt>rustup</dt><dd>Selects and installs toolchains and targets.</dd><dt>rustc</dt><dd>Compiles Rust source.</dd><dt>Cargo</dt><dd>Builds packages, resolves dependencies, runs tests and generates documentation.</dd><dt>rust-analyzer</dt><dd>Provides completion, navigation and editor diagnostics.</dd></dl></div><aside><h3>Three useful distinctions</h3><p>A <strong>package</strong> is described by Cargo.toml. A <strong>crate</strong> is a compilation unit, such as a library or binary. A <strong>module</strong> organizes names inside a crate.</p><p><code>cargo check</code> gives fast compiler feedback; <code>cargo build</code> also produces build artifacts. Use <code>--release</code> for performance measurements.</p></aside></div>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/">The Rust Programming Language</a> · <a href="https://zed.dev/docs/languages/rust">Zed · Rust</a></p></section>
+<section id="current" class="chapter"><div class="chapter-title"><span class="index">02</span><div><h2>Current, with a date attached</h2><p class="deck">Stable 1.100.0 · edition 2024 · re-verified on every build</p></div></div>
+<p>This edition targets <strong>Rust 1.100.0</strong>, released 12 November 2026. Every example on this page was compiled by <code>rustc 1.100.0 (0ef1bc386 2026-11-09)</code> when the site was built. A Rust program, <code>studio-verify</code>, checks each one against its declared outcome and refuses to publish a stale result. The starter pins the same compiler. <strong>2024 is the edition name, not the year of your compiler.</strong> New projects should use <code>edition = "2024"</code>; upgrading an existing repository deserves its own migration and tests.</p>
+<div class="callout"><h3>What changed in 1.100?</h3><p>The never type <code>!</code> is stable: you can name it, as in <code>Result&lt;T, !&gt;</code>, and <code>std::convert::Infallible</code> is now an alias for it. A function can now say in its signature that it cannot fail, and callers can write an irrefutable <code>let Ok(value) = …</code> with no Err arm. The release also stabilizes the <code>Allocator</code> API, <code>core::mem::DropGuard</code>, and smaller conveniences such as <code>bool::toggle</code> and <code>str::trim_prefix</code>.</p><p>Cargo now warns about unused dependencies by default (configurable under <code>[lints.cargo]</code>) and changes its internal build-directory layout. Final artifacts such as <code>target/debug/signal-notebook</code> stay where they were; this site's own build was checked against that.</p><p>Those are release notes, not prerequisites. The examples stay in safe, stable Rust.</p></div>
+<figure class="example pass"><figcaption><span class="ex-path">examples/never.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+// Rust 1.100: `!` is a type you can name, and Infallible is now `!`.
+fn byte_len(input: &amp;str) -&gt; Result&lt;usize, !&gt; {
+    Ok(input.len()) // this operation cannot fail, and the type says so
+}
+fn main() {
+    let Ok(len) = byte_len(&quot;signal&quot;); // no Err arm: it cannot exist
+    let flag = &quot;--verbose&quot;.trim_prefix(&quot;--&quot;);
+    println!(&quot;{len} bytes, flag {flag}&quot;);
+}</code></pre><details class="output"><summary>Program output</summary><pre>6 bytes, flag verbose</pre></details></figure>
+<p><strong>Freshness boundary:</strong> the compiler results update whenever the pin changes; the prose is a researched snapshot as of 12 November 2026. Before future work, run <code>rustup check</code>, read release notes, and update deliberately. A toolchain pin changes only when you edit it.</p>
+<p class="cite">Read the source: <a href="https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/">Rust Release Team · Rust 1.100.0</a> · <a href="https://doc.rust-lang.org/edition-guide/rust-2024/index.html">Rust 2024 Edition Guide</a></p></section>
+<section id="syntax" class="chapter"><div class="chapter-title"><span class="index">03</span><div><h2>Read the shape of Rust</h2><p class="deck">Types make promises; expressions produce values.</p></div></div>
+<p><code>let</code> creates a binding. Add <code>mut</code> when that binding needs reassignment or mutable access. Shadowing with a new <code>let</code> creates a fresh binding and may change its type. A function declares parameter types and uses <code>-&gt;</code> for its return type. Its final expression supplies the return value when you omit the semicolon.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/basics.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+fn label(score: u8) -&gt; &amp;&#x27;static str {
+    if score &gt;= 80 { &quot;high&quot; } else { &quot;ordinary&quot; }
+}
+fn main() {
+    let raw = &quot;81&quot;;
+    let score: u8 = raw.parse().expect(&quot;the literal is a valid u8&quot;);
+    let mut attempts = 0;
+    attempts += 1;
+    println!(&quot;{} after {attempts} attempt&quot;, label(score));
+}</code></pre><details class="output"><summary>Program output</summary><pre>high after 1 attempt</pre></details></figure>
+<p><code>u8</code> is an unsigned 8-bit integer; <code>usize</code> is sized for the target architecture and commonly represents lengths. <code>String</code> owns growable text. <code>&amp;str</code> borrows UTF-8 text. The exclamation mark in <code>println!</code> denotes a macro. <code>::</code> selects a path item or associated function; <code>.</code> calls methods or accesses fields.</p>
+<p>The example's <code>expect</code> documents a known literal invariant. Do not copy that choice onto arbitrary user input: the error-handling chapter shows how to propagate failures.</p>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch03-01-variables-and-mutability.html">The Book · Variables and mutability</a> · <a href="https://doc.rust-lang.org/book/ch08-02-strings.html">The Book · UTF-8 strings</a></p></section>
+<section id="ownership" class="chapter"><div class="chapter-title"><span class="index">04</span><div><h2>The ownership observatory</h2><p class="deck">Predict first. Reveal the compiler’s answer second.</p></div></div>
+<p>Moving an owned String transfers responsibility for its allocation. A borrow gives access while the owner retains responsibility. Shared references permit observation; an exclusive reference permits mutation. References must remain valid, and conflicting access to the same data cannot overlap. Types such as integers implement <code>Copy</code>, so assignment copies their value instead of invalidating the source.</p>
+<div class="lab"><h3>The six experiments, predict first</h3><p>Decide for each one: does it compile? Open the verdict only after you have called it.</p><details class="experiment"><summary><span class="ex-index">01</span> Move a String, then use the old name</summary><p>The String moved to second. Using first afterward is rejected. Passing ownership does not implicitly clone the allocation.</p><p><strong>The compiler rejects it: E0382.</strong></p><pre><code>error[E0382]: borrow of moved value: `first`
+ --&gt; examples/move.rs:5:16
+  |
+3 |     let first = String::from(&quot;signal&quot;);
+  |         ----- move occurs because `first` has type `String`, which does not implement the `Copy` trait
+4 |     let second = first;
+  |                  ----- value moved here
+5 |     println!(&quot;{first} / {second}&quot;);
+  |                ^^^^^ value borrowed here after move
+  |
+help: consider cloning the value if the performance cost is acceptable
+  |
+4 |     let second = first.clone();
+  |                       ++++++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0382`.</code></pre></details><details class="experiment"><summary><span class="ex-index">02</span> Borrow the String instead</summary><p>second borrows first. Both names can be used for this shared read, and first remains the owner.</p><p><strong>It compiles and runs.</strong></p><pre><code>signal / signal</code></pre></details><details class="experiment"><summary><span class="ex-index">03</span> Mutate before a shared borrow&#x27;s final use</summary><p>view is used after push. The shared borrow therefore conflicts with mutable access during push.</p><p><strong>The compiler rejects it: E0502.</strong></p><pre><code>error[E0502]: cannot borrow `text` as mutable because it is also borrowed as immutable
+ --&gt; examples/conflict.rs:5:5
+  |
+4 |     let view = &amp;text;
+  |                ----- immutable borrow occurs here
+5 |     text.push(&#x27;!&#x27;);
+  |     ^^^^^^^^^^^^^^ mutable borrow occurs here
+6 |     println!(&quot;{view}&quot;);
+  |                ---- immutable borrow later used here
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0502`.</code></pre></details><details class="experiment"><summary><span class="ex-index">04</span> Mutate after the borrow&#x27;s final use</summary><p>The final use of view is before push. The compiler can end that borrow, permitting the subsequent mutation.</p><p><strong>It compiles and runs.</strong></p><pre><code>signal
+signal!</code></pre></details><details class="experiment"><summary><span class="ex-index">05</span> Make a deliberate independent clone</summary><p>clone creates an independent String. Mutation of second does not change first; copying the text has a cost.</p><p><strong>It compiles and runs.</strong></p><pre><code></code></pre></details><details class="experiment"><summary><span class="ex-index">06</span> Copy an integer</summary><p>u32 implements Copy. The assignment copies its value; no String allocation is involved.</p><p><strong>It compiles and runs.</strong></p><pre><code></code></pre></details></div>
+<p><strong>Reading a borrow error:</strong> find the original access, the conflicting access, and the later use keeping the borrow alive. Try shortening the borrow or separating computation from mutation. A clone is a valid design choice when two independent owned values are actually needed; it is not a universal fix.</p>
+<p>This model covers ordinary references. Interior-mutability types such as RefCell and Mutex impose their own runtime rules; they do not erase the need to reason about access.</p>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html">The Book · References and borrowing</a></p></section>
+<section id="lifetimes" class="chapter"><div class="chapter-title"><span class="index">05</span><div><h2>Lifetimes describe relationships</h2><p class="deck">They never keep a value alive for you.</p></div></div>
+<p>A lifetime annotation connects borrowed inputs and outputs. In this function, the returned reference is valid for a lifetime supported by both inputs. The compiler checks the actual call site. The annotation neither extends storage nor chooses which input is returned.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/lifetime.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+fn longer&lt;&#x27;a&gt;(left: &amp;&#x27;a str, right: &amp;&#x27;a str) -&gt; &amp;&#x27;a str {
+    if left.len() &gt;= right.len() { left } else { right }
+}
+fn main() {
+    let left = String::from(&quot;signal&quot;);
+    let right = String::from(&quot;ok&quot;);
+    assert_eq!(longer(&amp;left, &amp;right), &quot;signal&quot;);
+}</code></pre><details class="output"><summary>Program output</summary><pre></pre></details></figure>
+<p>Here, “longer” means more UTF-8 bytes. If the caller needs ownership independent of the inputs, return a String. Returning a reference to a local String fails even if you write <code>'static</code>.</p>
+<details><summary>Why doesn’t 'static repair a dangling reference?</summary><figure class="example fail"><figcaption><span class="ex-path">examples/dangling.rs</span><span class="ex-verdict">rejected with E0515 by rustc 1.100.0</span></figcaption><pre><code>// expect: E0515
+fn invalid() -&gt; &amp;&#x27;static str {
+    let local = String::from(&quot;signal&quot;);
+    &amp;local
+}
+fn main() { println!(&quot;{}&quot;, invalid()); }</code></pre><details class="output"><summary>Compiler diagnostic (E0515)</summary><pre>error[E0515]: cannot return reference to local variable `local`
+ --&gt; examples/dangling.rs:4:5
+  |
+4 |     &amp;local
+  |     ^^^^^^ returns a reference to data owned by the current function
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0515`.</pre></details></figure><p>The local allocation is dropped when the function returns. An annotation cannot prevent that. Return <code>local</code> as a String, or return a string literal that really does have static storage.</p></details>
+<p><code>T: 'static</code> means the type contains no borrowed references with shorter lifetimes. An owned String can meet that bound and still be dropped normally. It does not mean every such value lives forever.</p>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html">The Book · Lifetimes</a></p></section>
+<section id="model" class="chapter"><div class="chapter-title"><span class="index">06</span><div><h2>Let the data model do work</h2><p class="deck">A valid state should be easy to express.</p></div></div>
+<p>A struct groups fields that belong together. An enum chooses one variant, optionally carrying data. This lets a completed job carry output while a queued job has none. An exhaustive match forces the code to account for every variant.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/enum.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+#[derive(Debug)]
+enum Job { Queued, Running { worker: u32 }, Complete(String) }
+fn describe(job: &amp;Job) -&gt; String {
+    match job {
+        Job::Queued =&gt; &quot;waiting&quot;.to_owned(),
+        Job::Running { worker } =&gt; format!(&quot;worker {worker}&quot;),
+        Job::Complete(output) =&gt; format!(&quot;done: {output}&quot;),
+    }
+}
+fn main() {
+    let jobs = [Job::Queued, Job::Running { worker: 7 },
+                Job::Complete(&quot;report&quot;.into())];
+    for job in &amp;jobs { println!(&quot;{}&quot;, describe(job)); }
+}</code></pre><details class="output"><summary>Program output</summary><pre>waiting
+worker 7
+done: report</pre></details></figure>
+<p><code>Option&lt;T&gt;</code> expresses presence or absence using Some and None. Use it when absence is a normal possibility: the starter returns <code>None</code> for the mean of an empty input. Zero would claim a result that was never measured.</p>
+<div class="callout"><h3>Library-team wisdom: distinguish meanings with types</h3><p>The Rust API Guidelines recommend newtypes when values with the same representation have different meanings. In the starter, the private field in <code>Score(u8)</code> and its checked constructor keep values above 100 out of normal callers' hands. Keep the guarantee small and inspectable; do not encode every business rule into elaborate type machinery.</p></div>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch06-00-enums.html">The Book · Enums and pattern matching</a> · <a href="https://rust-lang.github.io/api-guidelines/type-safety.html">API Guidelines · Type safety</a></p></section>
+<section id="errors" class="chapter"><div class="chapter-title"><span class="index">07</span><div><h2>Give failures a useful shape</h2><p class="deck">Expected failure is part of the API.</p></div></div>
+<p><code>Result&lt;T, E&gt;</code> contains either Ok(value) or Err(error). The <code>?</code> operator returns early on an error, with supported conversion into the enclosing function's error type. It does not log or recover automatically.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/result.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+use std::num::ParseIntError;
+fn double(input: &amp;str) -&gt; Result&lt;u16, ParseIntError&gt; {
+    let value: u8 = input.parse()?;
+    Ok(u16::from(value) * 2)
+}
+fn main() -&gt; Result&lt;(), ParseIntError&gt; {
+    assert_eq!(double(&quot;128&quot;)?, 256);
+    assert!(double(&quot;invalid&quot;).is_err());
+    Ok(())
+}</code></pre><details class="output"><summary>Program output</summary><pre></pre></details></figure>
+<p>The starter's library returns a concrete <code>ParseScoreError</code> with a line number; its CLI collects different failures behind <code>Box&lt;dyn Error&gt;</code> and prints one message at the boundary. Real applications often add context such as the operation and path, while avoiding sensitive payloads.</p>
+<article class="wisdom"><p class="eyebrow">Practitioner note / Andrew Gallant</p><h3>Make the panic policy about invariants.</h3><p>Gallant argues that unwrap or expect can be appropriate when failure would reveal a programming bug, and in tests. Expected operational failures should use error handling. This is a reasoned policy, not a blanket license to panic. In this starter, invalid file contents return an error; tests use unwrap to make unexpected setup failure fail the test.</p><p class="application">Apply it: for each expect, explain why failure is a bug. If the answer is “the user might type something else,” return a Result.</p></article>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html">The Book · Result</a> · <a href="https://burntsushi.net/unwrap/">Andrew Gallant · Using unwrap() in Rust is Okay</a></p></section>
+<section id="collections" class="chapter"><div class="chapter-title"><span class="index">08</span><div><h2>Borrow collections; consume with intent</h2><p class="deck">Iteration is an ownership decision too.</p></div></div>
+<p><code>Vec&lt;T&gt;</code> owns a growable sequence. <code>&amp;[T]</code> borrows a slice and lets functions accept arrays or vectors. For a Vec, <code>iter()</code> yields shared references, <code>iter_mut()</code> yields mutable references, and consuming <code>into_iter()</code> yields owned items. Read the receiver type: into_iter on a reference can yield references.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/iterator.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+fn main() {
+    let words = [String::from(&quot;rust&quot;), String::from(&quot;is&quot;), String::from(&quot;clear&quot;)];
+    let long: Vec&lt;&amp;str&gt; = words.iter()
+        .map(String::as_str)
+        .filter(|word| word.len() &gt; 2)
+        .collect();
+    assert_eq!(long, [&quot;rust&quot;, &quot;clear&quot;]);
+    assert_eq!(words.len(), 3); // the array was borrowed
+}</code></pre><details class="output"><summary>Program output</summary><pre></pre></details></figure>
+<p>Iterator adapters are lazy. A consumer such as collect, sum, or a for loop drives the work. Use a plain loop when it communicates state changes more clearly. Collecting into <code>Result&lt;Vec&lt;T&gt;, E&gt;</code> can stop at the first error; the starter uses that behavior to reject invalid input.</p>
+<aside><h3>Text has more than one length</h3><p><code>String::len()</code> counts bytes. <code>chars()</code> iterates Unicode scalar values, which are not necessarily visible characters. Rust disallows integer indexing into str; byte slicing requires UTF-8 boundaries and can panic. Prefer <code>get(range)</code> when boundaries are uncertain. For filesystem paths use Path / PathBuf and OS-native arguments rather than assuming UTF-8.</p></aside>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch13-02-iterators.html">The Book · Iterators</a> · <a href="https://doc.rust-lang.org/book/ch08-02-strings.html">The Book · UTF-8 strings</a></p></section>
+<section id="abstraction" class="chapter"><div class="chapter-title"><span class="index">09</span><div><h2>Abstract after the concrete case</h2><p class="deck">Traits express behavior. They do not require a framework.</p></div></div>
+<p>A trait defines shared behavior. An impl supplies it for a type. A generic bound or argument-position <code>impl Trait</code> lets the compiler specialize code for a concrete type. <code>dyn Trait</code> dispatches dynamically through a pointer, such as a reference or a <code>Box</code>. Not every trait is dyn-compatible.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/trait.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+trait Summary { fn summary(&amp;self) -&gt; String; }
+struct Report { count: usize }
+impl Summary for Report {
+    fn summary(&amp;self) -&gt; String { format!(&quot;{} samples&quot;, self.count) }
+}
+fn show(item: &amp;impl Summary) { println!(&quot;{}&quot;, item.summary()); }
+fn main() { show(&amp;Report { count: 4 }); }</code></pre><details class="output"><summary>Program output</summary><pre>4 samples</pre></details></figure>
+<p>Use <code>mod</code> for module structure, <code>use</code> for bringing names into scope, and <code>pub</code> deliberately at an API boundary. A library in src/lib.rs makes core logic reusable and easy to test; src/main.rs can concentrate on arguments, I/O, and exit behavior.</p>
+<article class="wisdom"><p class="eyebrow">Practitioner note / Matthias Endler</p><h3>Write code a tired colleague can trace.</h3><p>Endler's “Be Simple” challenges unnecessary generics and indirection. The practical lesson is to make the domain operation visible and introduce abstraction when it resolves a concrete need. In this project, one parser and a small Score type are enough. A universal parsing framework would hide more than it explains.</p><p class="application">Apply it: before adding a trait, name the second implementation or the boundary it isolates.</p></article>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch10-02-traits.html">The Book · Traits</a> · <a href="https://corrode.dev/blog/simple/">Matthias Endler · Be Simple</a></p></section>
+<section id="concurrency" class="chapter"><div class="chapter-title"><span class="index">10</span><div><h2>Choose the concurrency you actually need</h2><p class="deck">Ownership continues across threads and tasks.</p></div></div>
+<p><code>Send</code> indicates that a value's ownership can cross thread boundaries. <code>Sync</code> means shared references can cross them safely. Arc provides atomic shared ownership, not automatic thread safety for arbitrary contents. Mutex provides synchronized access; short lock scopes make behavior easier to reason about. Scoped threads can borrow data because the scope waits for its threads.</p>
+<figure class="example pass"><figcaption><span class="ex-path">examples/thread.rs</span><span class="ex-verdict">compiles and runs on rustc 1.100.0</span></figcaption><pre><code>// expect: pass
+fn main() {
+    let values = [2, 4, 6];
+    let total = std::thread::scope(|scope| {
+        let handle = scope.spawn(|| values.iter().sum::&lt;i32&gt;());
+        handle.join().expect(&quot;worker should not panic&quot;)
+    });
+    assert_eq!(total, 12);
+}</code></pre><details class="output"><summary>Program output</summary><pre></pre></details></figure>
+<h3>Async is a scheduling contract</h3><p>An async function produces a future. A runtime drives it; await can suspend the current task. A ready future need not yield, so merely writing await in a loop does not establish fairness. Async helps with concurrent waiting; it does not automatically make CPU work faster.</p>
+<article class="wisdom"><p class="eyebrow">Practitioner note / Alice Ryhl</p><h3>Do not occupy an executor thread with blocking work.</h3><p>Ryhl explains why synchronous sleeps or expensive computation can stall other tasks in a cooperative executor. Current Tokio documentation supports moving bounded blocking work into spawn_blocking, limiting concurrent CPU jobs, and using dedicated threads for persistent blocking loops. Once a spawn_blocking closure starts, abort will not stop it.</p><p class="application">Apply it: decide timeouts, cancellation behavior, queue limits and shutdown before spawning a task per input.</p></article>
+<p>Start with synchronous code for a small CLI like this one. Add an async runtime when the workload needs concurrent I/O. No runtime dependency is required for the included lessons.</p>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/book/ch16-04-extensible-concurrency-sync-and-send.html">The Book · Send and Sync</a> · <a href="https://ryhl.io/blog/async-what-is-blocking/">Alice Ryhl · Async: What is blocking?</a> · <a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html">Tokio · spawn_blocking</a></p></section>
+<section id="workflow" class="chapter"><div class="chapter-title"><span class="index">11</span><div><h2>A daily development bench</h2><p class="deck">Short feedback while writing; broader evidence before shipping.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it tells you</th><th>What it does not prove</th></tr></thead><tbody>
+<tr><td><code>cargo check</code></td><td>Type and borrow checking</td><td>Correct business behavior</td></tr>
+<tr><td><code>cargo fmt --check</code></td><td>Formatting agrees with rustfmt</td><td>Design quality</td></tr>
+<tr><td><code>cargo clippy --all-targets -- -D warnings</code></td><td>Selected compiler/lint diagnostics are clean</td><td>Absence of bugs</td></tr>
+<tr><td><code>cargo nextest run</code></td><td>Unit/integration test execution</td><td>Doc tests; run cargo test --doc too</td></tr>
+<tr><td><code>cargo llvm-cov --html</code></td><td>Instrumented code exercised by tests</td><td>Useful assertions or complete requirements</td></tr>
+<tr><td><code>cargo audit</code></td><td>Lockfile matches against known advisories</td><td>Safety of every dependency or your code</td></tr>
+<tr><td><code>cargo deny check</code></td><td>Configured dependency policy checks</td><td>A security or legal certification</td></tr>
+<tr><td><code>bacon</code></td><td>Continuous local feedback as files change</td><td>A replacement for complete checks</td></tr>
+</tbody></table></div>
+<div class="codebox"><div class="codehead"><span>shell</span></div><pre><code>cargo nextest run
+cargo test --doc
+cargo llvm-cov --html
+cargo doc --no-deps
+RUST_BACKTRACE=1 cargo run -- scores.txt
+rust-lldb target/debug/signal-notebook</code></pre></div>
+<p>In LLDB, try <code>breakpoint set --name signal_notebook::main</code>, <code>run scores.txt</code>, <code>next</code>, and <code>frame variable</code>. Debugger process-launch permissions are separate from compilation. Zed also exposes Rust debugging; its first session may fetch its CodeLLDB adapter.</p>
+<p>Use unit tests for small behavior, integration tests for the public boundary, and doc tests for examples promised to callers. The starter checks domain edges, bad input, original line numbers, empty data, CLI success, and CLI failure. It also includes a documentation test.</p>
+<p class="cite">Read the source: <a href="https://nexte.st/docs/installation/pre-built-binaries/">nextest · Installation</a> · <a href="https://github.com/taiki-e/cargo-llvm-cov">cargo-llvm-cov · Project documentation</a> · <a href="https://embarkstudios.github.io/cargo-deny/checks/cfg.html">cargo-deny · Configuration</a> · <a href="https://zed.dev/docs/languages/rust">Zed · Rust</a></p></section>
+<section id="judgment" class="chapter"><div class="chapter-title"><span class="index">12</span><div><h2>The senior-developer review desk</h2><p class="deck">Tradeoffs are more useful than commandments.</p></div></div>
+<article class="wisdom"><p class="eyebrow">Practitioner note / Nicholas Nethercote</p><h3>Optimize the bottleneck you can demonstrate.</h3><p>The Rust Performance Book emphasizes hot code, better algorithms and data structures, and measurements. Start with a release build and a representative workload. Change one thing, compare results, and retain the measurement that explains a surprising optimization. Reducing unnecessary work can matter more than making a tiny operation clever.</p><p class="application">Apply it: measure the starter on a large file before replacing its readable parser. If memory becomes the issue, investigate streaming I/O before low-level tricks.</p></article>
+<div class="split"><div><h3>Questions worth asking in review</h3><ul><li>Who owns this data, and how long must it live?</li><li>Can this invalid state be constructed outside its module?</li><li>Does the caller have enough context to handle this error?</li><li>Are allocation, I/O and locking visible where they matter?</li><li>What does cancellation leave partially done?</li><li>Which measured requirement justifies this abstraction?</li></ul></div><aside><h3>Keep expert advice in context</h3><p>The named notes summarize each author's published reasoning. They are not quotes, a consensus vote, or evidence that one technique always wins. The examples and review questions are this primer's synthesis.</p><p>Unsafe, procedural macros, pinning internals and FFI belong to later study. Unsafe requires proving obligations that the compiler no longer checks; it does not switch off ordinary type checking.</p></aside></div>
+<p class="cite">Read the source: <a href="https://nnethercote.github.io/perf-book/general-tips.html">Nicholas Nethercote · The Rust Performance Book</a> · <a href="https://rust-lang.github.io/api-guidelines/">Rust library team · API Guidelines</a></p></section>
+<section id="practice" class="chapter"><div class="chapter-title"><span class="index">13</span><div><h2>Four sessions to a useful Rust habit</h2><p class="deck">Each exercise changes observable behavior.</p></div></div>
+<div class="exercises">
+<div class="exercise"><span><strong>01 / Ownership, 30–45 minutes</strong>Run all six observatory experiments. Explain why the original String is unavailable after a move but remains usable after a borrow. Read the first compiler error before changing code.</span></div>
+<div class="exercise"><span><strong>02 / Domain model, 45–60 minutes</strong>Add a <code>maximum(&amp;[Score]) -&gt; Option&lt;Score&gt;</code> function. Test empty input, one value, duplicate maxima and endpoints. Keep the Score field private.</span></div>
+<div class="exercise"><span><strong>03 / Error behavior, 45–60 minutes</strong>Add support for lines beginning with # as comments. Preserve original line numbers in failures. Test CRLF, leading whitespace, comments and malformed input.</span></div>
+<div class="exercise"><span><strong>04 / Measurement, 60 minutes</strong>Compare whole-file reading with a BufRead-based streaming version on generated non-sensitive data. Record release timing and peak memory. Decide whether the complexity buys enough.</span></div>
+</div><details><summary>Retrieval practice: five questions to answer aloud</summary><ol><li>When does assignment move a value, and when does it copy?</li><li>Why does annotating a lifetime not extend an allocation's life?</li><li>What does ? do when it sees an Err?</li><li>Why can a successful audit still leave a program vulnerable?</li><li>Why can an async function still block the executor?</li></ol></details>
+<p>Tick these off on paper or in your editor; nothing on this page tracks you.</p>
+</section>
+<section id="maintenance" class="chapter"><div class="chapter-title"><span class="index">14</span><div><h2>Maintain a kit you understand</h2><p class="deck">One owner per tool. Pins for projects; deliberate updates.</p></div></div>
+<p>Rustup owns your toolchains and components. Pick one owner for each Cargo extension: Homebrew bottles for nextest, Bacon, cargo-deny and cargo-llvm-cov, say, and <code>cargo install --locked</code> for the rest. Avoid installing duplicate copies of the same executable through different managers; <code>which -a cargo-nextest</code> shows when you have.</p>
+<div class="codebox"><div class="codehead"><span>shell</span></div><pre><code>rustup check
+rustup update stable --no-self-update
+brew outdated cargo-nextest cargo-deny bacon cargo-llvm-cov
+# Apply upgrades when you are ready:
+brew upgrade cargo-nextest cargo-deny bacon cargo-llvm-cov
+# Inspect Cargo-managed utilities separately:
+cargo install --list</code></pre></div>
+<p>For a new dependency, verify its crate name, upstream repository, maintainer activity, features, license and build behavior before using <code>cargo add</code>. Build scripts and procedural macros run code during builds. Use <code>cargo tree -e features</code> to inspect why code is present. Keep Cargo.lock with this application and use <code>--locked</code> in repeatable checks.</p>
+<p><code>cargo install --locked</code> uses the package's supplied lockfile when available. That improves reproducibility but may also preserve older dependency versions. It is not an audit. Dependencies belong in each project's Cargo.toml, rather than a global pile of libraries.</p>
+<h3>Extensions when the project calls for them</h3><p>Nightly + Miri for additional undefined-behavior checking; cargo-fuzz for fuzzing; a benchmark harness for statistically informed timing; platform SDKs for cross-compilation. These are optional follow-ons, not part of this kit. Target libraries alone do not supply every linker, runtime or deployment tool.</p>
+<p>Removal is piecemeal: Homebrew tools can be removed individually with <code>brew uninstall</code>; an exact toolchain can be removed with <code>rustup toolchain uninstall 1.100.0</code> after changing any project that pins it. To move this kit to a new release, edit both <code>rust-toolchain.toml</code> pins, run <code>cargo run -p studio-verify -- write</code>, and read the diff: it shows exactly which compiler messages changed.</p>
+<p class="cite">Read the source: <a href="https://doc.rust-lang.org/cargo/commands/cargo-install.html">Cargo · cargo install</a> · <a href="https://rust-analyzer.github.io/book/installation.html">rust-analyzer · Installation</a></p></section>
+<section id="sources" class="chapter"><div class="chapter-title"><span class="index">15</span><div><h2>The reading room</h2><p class="deck">Primary documentation and practitioners’ own writing.</p></div></div>
+<p>Each source shows the date its content was last consulted; every link was checked as reachable on 12 November 2026. Older essays are dated and used for durable design reasoning; version-sensitive guidance was checked against current official documentation. None of the authors reviewed or endorsed this primer.</p>
+<ol class="sources">
+<li id="src-release"><a href="https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/">Rust Release Team · Rust 1.100.0</a><p>2026-11-12; current stable, pinned by this site&#x27;s examples and starter. <span class="accessed">Consulted 2026-11-12.</span></p></li>
+<li id="src-edition"><a href="https://doc.rust-lang.org/edition-guide/rust-2024/index.html">Rust 2024 Edition Guide</a><p>Edition 2024 first shipped in Rust 1.85; editions and compiler releases differ. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-book"><a href="https://doc.rust-lang.org/book/">The Rust Programming Language</a><p>Current online book; also available locally with rustup doc --book. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-basics"><a href="https://doc.rust-lang.org/book/ch03-01-variables-and-mutability.html">The Book · Variables and mutability</a><p>Bindings, mutability and shadowing. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-borrow"><a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html">The Book · References and borrowing</a><p>Reference validity and borrow conflicts. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-life"><a href="https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html">The Book · Lifetimes</a><p>Lifetime relationships and dangling references. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-enums"><a href="https://doc.rust-lang.org/book/ch06-00-enums.html">The Book · Enums and pattern matching</a><p>Explicit states and Option. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-errors"><a href="https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html">The Book · Result</a><p>Fallible operations and propagation. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-strings"><a href="https://doc.rust-lang.org/book/ch08-02-strings.html">The Book · UTF-8 strings</a><p>Owned strings, slices and Unicode. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-iter"><a href="https://doc.rust-lang.org/book/ch13-02-iterators.html">The Book · Iterators</a><p>Lazy adaptation and consumption. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-traits"><a href="https://doc.rust-lang.org/book/ch10-02-traits.html">The Book · Traits</a><p>Shared behavior and bounds. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-send"><a href="https://doc.rust-lang.org/book/ch16-04-extensible-concurrency-sync-and-send.html">The Book · Send and Sync</a><p>Thread transfer and shared references. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-gallant"><a href="https://burntsushi.net/unwrap/">Andrew Gallant · Using unwrap() in Rust is Okay</a><p>2022-08-08; nuanced panic and invariant policy. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-ryhl"><a href="https://ryhl.io/blog/async-what-is-blocking/">Alice Ryhl · Async: What is blocking?</a><p>2020-12-21; cooperative scheduling, cross-checked against current Tokio docs. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-tokio"><a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html">Tokio · spawn_blocking</a><p>Current API documentation; bounded concurrency and cancellation limitations. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-perf"><a href="https://nnethercote.github.io/perf-book/general-tips.html">Nicholas Nethercote · The Rust Performance Book</a><p>Living guide; optimize measured hot paths and data structures. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-simple"><a href="https://corrode.dev/blog/simple/">Matthias Endler · Be Simple</a><p>Updated 2025-11-14; reduce unnecessary abstraction. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-api"><a href="https://rust-lang.github.io/api-guidelines/">Rust library team · API Guidelines</a><p>Practitioner recommendations, not mandatory language rules. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-types"><a href="https://rust-lang.github.io/api-guidelines/type-safety.html">API Guidelines · Type safety</a><p>Newtypes, meaningful argument types and builders. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-ra"><a href="https://rust-analyzer.github.io/book/installation.html">rust-analyzer · Installation</a><p>Language server plus standard-library sources. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-zed"><a href="https://zed.dev/docs/languages/rust">Zed · Rust</a><p>Native Rust integration, language server and debugging. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-nextest"><a href="https://nexte.st/docs/installation/pre-built-binaries/">nextest · Installation</a><p>Official distribution documentation. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-coverage"><a href="https://github.com/taiki-e/cargo-llvm-cov">cargo-llvm-cov · Project documentation</a><p>Coverage workflow and nightly-only capabilities. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-deny"><a href="https://embarkstudios.github.io/cargo-deny/checks/cfg.html">cargo-deny · Configuration</a><p>Dependency policies and configuration discovery. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+<li id="src-install"><a href="https://doc.rust-lang.org/cargo/commands/cargo-install.html">Cargo · cargo install</a><p>Binary installation, version selection and --locked tradeoffs. <span class="accessed">Consulted 2026-10-31.</span></p></li>
+</ol></section>
+<footer class="colophon">
+  <p><strong>Colophon.</strong> Edition 02, sealed 2026-11-18 with <a href="https://press.mazzeleczzare.com/">Rustpress</a>. Every code sample and compiler diagnostic on this page was produced by <code>rustc 1.100.0 (0ef1bc386 2026-11-09)</code> when the edition was built; <code>studio-verify</code> refuses to publish a stale result.</p>
+  <p>No scripts, no trackers, no remote resources. The evidence, examples and starter project are inspectable at <a href="https://github.com/mazze93/rust-studio">github.com/mazze93/rust-studio</a>. Printed sources are linked inline; every link was checked on the date shown beside it.</p>
+</footer>
+</main>
+</body>
+</html>

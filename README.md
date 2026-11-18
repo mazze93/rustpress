@@ -74,9 +74,13 @@ Choose a new release label every time. The `stage` command installs locked site 
 
 The site is not intended to build independently from an empty checkout: `stage` supplies the real `public/pressing.json` and pressed corpus to its temporary build workspace. There is no fabricated sample manifest fallback.
 
+## Editions
+
+See [CATALOG.md](CATALOG.md) for every pressing, its seal digest, and its source.
+
 ## Publication policy
 
-Corpus HTML accepts a limited element/attribute allowlist. Scripts, forms, embedded documents, inline styles, remote links/resources, SVG, PDF, and JavaScript files are rejected. CSS is tokenized; resource loads and at-rules are rejected. Images are PNG, JPEG, GIF, or WebP; WOFF2 signatures are recognized. Paths are portable ASCII, not silently Unicode-normalized.
+Corpus HTML accepts a limited element/attribute allowlist. Scripts, forms, embedded documents, inline styles, remote resources, SVG, PDF, and JavaScript files are rejected. Since policy `rustpress-static-v2`, absolute `https://` URLs are allowed on `<a href>` only (navigation, never a fetched subresource); v1 seals remain verifiable. CSS is tokenized; resource loads and at-rules are rejected. Images are PNG, JPEG, GIF, or WebP; WOFF2 signatures are recognized. Paths are portable ASCII, not silently Unicode-normalized.
 
 The surrounding Astro template is trusted build code, separate from the untrusted corpus. Its build runs without Cloudflare credentials. No active-content override is implemented.
 

@@ -130,6 +130,17 @@ pub fn asset(name: &str, bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
+fn is_https_url(value: &str) -> bool {
+    // https only, non-empty after the scheme, printable ASCII only, and no
+    // characters that could confuse HTML attribute parsing or a URL parser.
+    let Some(rest) = value.strip_prefix("https://") else {
+        return false;
+    };
+    !rest.is_empty()
+        && value.chars().all(|c| (0x21..=0x7e).contains(&(c as u32)))
+        && !value.contains(['\\', '"', '<', '>', '\''])
+}
+
 fn resolve(
     value: &str,
     source: &str,
@@ -330,6 +341,14 @@ pub fn html(
                     }
                     for attr in ["href", "src"] {
                         if let Some(value) = el.get_attribute(attr) {
+                            // v2: absolute https links are allowed on <a href> only.
+                            // They fetch nothing by themselves; every resource-bearing
+                            // element (img, source, link, script-src…) still goes
+                            // through resolve() and may only reference pressed bytes.
+                            if tag == "a" && attr == "href" && is_https_url(&value) {
+                                el.set_attribute(attr, &value)?;
+                                continue;
+                            }
                             let target = resolve(&value, source, routes, drafts, pressed)?;
                             if tag == "link" {
                                 ensure!(

@@ -1,0 +1,64 @@
+[
+  {
+    "source": "field-guide.css",
+    "output": "field-guide.css",
+    "url": "/published/field-guide.css",
+    "bytes": 5588,
+    "sha256": "724fc5f33572e1d50da4f199d745d0be542785037a16fbf8f73155547490f7fb",
+    "metadata": {
+      "title": null,
+      "description": null,
+      "date": null,
+      "tags": [],
+      "draft": false
+    }
+  },
+  {
+    "source": "first-impression.html",
+    "output": "first-impression/index.html",
+    "url": "/published/first-impression/",
+    "bytes": 1447,
+    "sha256": "b6898d479faed9d0751682bec0fbca0d063d619352fd6bb36841cf0ba808578b",
+    "metadata": {
+      "title": "The first impression",
+      "description": "A commissioning specimen for a quieter kind of publishing. The work is prepared once, checked, and released as exact bytes.",
+      "date": "2026-09-20",
+      "tags": [
+        "rustpress",
+        "specimen"
+      ],
+      "draft": false
+    }
+  },
+  {
+    "source": "index.html",
+    "output": "index.html",
+    "url": "/published/",
+    "bytes": 44786,
+    "sha256": "4b69482dea96e6c8745ced5dcab3c6816b50751bef98e4381d08b4ba61662a5b",
+    "metadata": {
+      "title": "The Rust Field Guide",
+      "description": "A practical, source-linked Rust primer for stable 1.100.0 and edition 2024. Every example was compiled by the pinned compiler at build time.",
+      "date": "2026-11-18",
+      "tags": [
+        "rust",
+        "field-guide"
+      ],
+      "draft": false
+    }
+  },
+  {
+    "source": "specimen.css",
+    "output": "specimen.css",
+    "url": "/published/specimen.css",
+    "bytes": 730,
+    "sha256": "bb1071ab6e5d4189d6ce1c58aba80aabc6f1ef4e19ae3ef234e98ac68274c982",
+    "metadata": {
+      "title": null,
+      "description": null,
+      "date": null,
+      "tags": [],
+      "draft": false
+    }
+  }
+]

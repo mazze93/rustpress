@@ -1,0 +1,39 @@
+{
+  "entries": [
+    {
+      "bytes": 5588,
+      "date": null,
+      "description": null,
+      "sha256": "724fc5f33572e1d50da4f199d745d0be542785037a16fbf8f73155547490f7fb",
+      "title": null,
+      "url": "/published/field-guide.css"
+    },
+    {
+      "bytes": 1447,
+      "date": "2026-09-20",
+      "description": "A commissioning specimen for a quieter kind of publishing. The work is prepared once, checked, and released as exact bytes.",
+      "sha256": "b6898d479faed9d0751682bec0fbca0d063d619352fd6bb36841cf0ba808578b",
+      "title": "The first impression",
+      "url": "/published/first-impression/"
+    },
+    {
+      "bytes": 44786,
+      "date": "2026-11-18",
+      "description": "A practical, source-linked Rust primer for stable 1.100.0 and edition 2024. Every example was compiled by the pinned compiler at build time.",
+      "sha256": "4b69482dea96e6c8745ced5dcab3c6816b50751bef98e4381d08b4ba61662a5b",
+      "title": "The Rust Field Guide",
+      "url": "/published/"
+    },
+    {
+      "bytes": 730,
+      "date": null,
+      "description": null,
+      "sha256": "bb1071ab6e5d4189d6ce1c58aba80aabc6f1ef4e19ae3ef234e98ac68274c982",
+      "title": null,
+      "url": "/published/specimen.css"
+    }
+  ],
+  "release": "commissioning-007",
+  "schema": 1,
+  "source_tree_sha256": "f8556a8c7c2aad157027aad5095c0ba2963ff3a7579f6cebfcfbbdb29379f68e"
+}

@@ -84,7 +84,6 @@ fn active_content_matrix() {
         "<meta http-equiv=\"refresh\" content=\"0;url=x\">",
         "<a href=\"javascript:alert(1)\">x</a>",
         "<a href=\"jav&#x61;script:alert(1)\">x</a>",
-        "<a href=\"https://example.com\">x</a>",
         "<a href=\"//example.com\">x</a>",
         "<img src=\"data:image/png;base64,AAAA\">",
         "<div style=\"background:url(https://evil.test)\">x</div>",
@@ -96,6 +95,30 @@ fn active_content_matrix() {
         "<div xmlns=\"x\">x</div>",
     ] {
         assert!(compile(&[("a.html", page(html))]).is_err(), "{html}");
+    }
+}
+
+#[test]
+fn https_anchor_links_are_allowed_v2() {
+    // v2 policy: absolute https URLs are allowed on <a href> only.
+    for ok in [
+        "<a href=\"https://example.com/\">x</a>",
+        "<a href=\"https://doc.rust-lang.org/book/ch00-00-introduction.html\">x</a>",
+        "<a href=\"https://example.com/a?b=c&amp;d=e#frag\">x</a>",
+    ] {
+        assert!(compile(&[("a.html", page(ok))]).is_ok(), "{ok}");
+    }
+    for bad in [
+        "<a href=\"http://example.com/\">x</a>",
+        "<a href=\"HTTPS://example.com/\">x</a>",
+        "<a href=\"https://example.com/a b\">x</a>",
+        "<a href=\"//example.com\">x</a>",
+        "<a href=\"javascript:alert(1)\">x</a>",
+        "<img src=\"https://example.com/x.png\">",
+        "<link rel=\"stylesheet\" href=\"https://example.com/x.css\">",
+        "<a href=\"https://example.com/\\\\x\">x</a>",
+    ] {
+        assert!(compile(&[("a.html", page(bad))]).is_err(), "{bad}");
     }
 }
 

@@ -15,7 +15,11 @@ use std::{
 const MAX_FILES: usize = 5000;
 const MAX_TOTAL: u64 = 150_000_000;
 const MAX_FILE: u64 = 20_000_000;
-const POLICY: &str = "rustpress-static-v1:allowlist-html;local-raster-assets;no-css-resources;ascii-paths;no-active-content";
+const POLICY: &str = "rustpress-static-v2:allowlist-html;local-raster-assets;no-css-resources;ascii-paths;no-active-content;https-anchor-links";
+// Seals cut under the v1 policy remain verifiable: the only v2 change is that
+// absolute https links on <a href> are now allowed, which cannot invalidate a
+// v1 bundle (v1 output contains no such links by construction).
+const POLICY_V1: &str = "rustpress-static-v1:allowlist-html;local-raster-assets;no-css-resources;ascii-paths;no-active-content";
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -383,7 +387,7 @@ pub fn verify(site: &Path, release: &str, expect: Option<&str>) -> Result<Verifi
     }
     let seal: Seal = serde_json::from_slice(&seal_bytes)?;
     ensure!(
-        seal.schema == 1 && seal.release == release && seal.policy == POLICY,
+        seal.schema == 1 && seal.release == release && (seal.policy == POLICY || seal.policy == POLICY_V1),
         "unsupported seal or release label mismatch"
     );
     ensure!(
