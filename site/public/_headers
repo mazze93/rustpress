@@ -7,3 +7,9 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Cache-Control: public, max-age=0, must-revalidate
+
+# Generated report reader policy
+/reports/
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-hrXlk+sDSRHmA4THIPJUlkMq3WuLxVCNr5Om6JlzhQc=' 'wasm-unsafe-eval'; style-src 'sha256-d/hRx3UMNgC9aLsQ7vZOdhz4r5yut6BiCad8INeO+io='; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+# End report reader policy

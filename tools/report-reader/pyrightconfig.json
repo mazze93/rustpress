@@ -1,0 +1,11 @@
+{
+  "include": ["build.py", "extractors"],
+  "exclude": ["target"],
+  "extraPaths": ["extractors"],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "standard",
+  "reportMissingImports": "error",
+  "reportOptionalSubscript": "error",
+  "reportOptionalMemberAccess": "error",
+  "reportUnnecessaryTypeIgnoreComment": "warning"
+}

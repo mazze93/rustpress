@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forensic Dashboard</title>
+<style>
+:root{font:16px/1.5 "Atkinson Hyperlegible Next",system-ui,sans-serif;color:#1c332e;background:#f4f5ef}*{box-sizing:border-box}body{margin:0}header{background:#143c34;color:white;padding:16px max(5vw,calc((100vw - 1040px)/2));font-weight:650;letter-spacing:.025em}main{max-width:1100px;padding:36px 30px 80px;margin:auto}h1{font:500 clamp(38px,6vw,65px)/1.05 Georgia,serif;letter-spacing:-.04em;margin:16px 0}p{max-width:70ch}#zone{display:grid;place-items:center;text-align:center;background:#e8eee4;border:1.5px dashed #769387;border-radius:10px;padding:32px 16px;margin:28px 0}#zone.active{background:#cde6d9}input{max-width:100%;font:inherit}input::file-selector-button,button{background:#174a3d;color:white;border:0;border-radius:5px;padding:8px 15px;cursor:pointer;font:inherit}small{color:#48635a}article{background:white;border:1px solid #c8d3c9;border-left:4px solid #40735b;border-radius:6px;margin:14px 0;padding:20px;overflow-wrap:anywhere}h2{font-size:1.3rem;margin:3px 0}li{margin:7px 0}summary{cursor:pointer;font-weight:600}.scroll{overflow:auto;max-height:420px}table{font-size:.88rem;border-collapse:collapse;width:100%;margin-top:12px}td,th{text-align:left;vertical-align:top;padding:7px;border-bottom:1px solid #dfe7df}th{background:#ebf1e9;position:sticky;top:0}#status{min-height:1.5em}button[hidden]{display:none}
+</style><header>Forensic Dashboard</header><main><h1>Report reader</h1><p>Drop diagnostic files to translate their findings and inspect the source evidence. Files are processed in your browser.</p>
+<section id="zone" aria-label="File drop zone"><label for="files"><strong>Drop reports and logs here</strong></label><p><input id="files" type="file" multiple accept=".xml,.plist,.ips,.json,.txt,.log,.out,.crash"></p><small>IOReport property lists · IPS crash reports · IndexedDB exports (dashboard.json) · UTF-8 logs · <span id="limit">size limit loading…</span></small></section>
+<div role="status" id="status"></div><button id="clear" hidden>Clear results</button><section id="results" aria-label="Findings"></section></main>
+<script type="application/octet-stream" id="reader-wasm">WASM_PAYLOAD</script>
+<script>
+const el=(tag,text)=>{const n=document.createElement(tag);n.textContent=text??'';return n};
+const zone=document.querySelector('#zone'),files=document.querySelector('#files'),results=document.querySelector('#results'),statusBox=document.querySelector('#status'),clear=document.querySelector('#clear');
+function display(card,r){
+ card.append(el('small',r.kind),el('p',r.summary));
+ const list=el('ul');for(const f of r.findings)list.append(el('li',f));card.append(list);
+ if(!r.rows.length)return;
+ const details=el('details'),wrap=el('div'),table=el('table'),head=table.createTHead().insertRow(),body=table.createTBody();
+ wrap.className='scroll';details.append(el('summary','Source evidence ('+r.rows.length+')'),wrap);wrap.append(table);
+ for(const c of r.columns)head.append(el('th',c));
+ for(const row of r.rows){const tr=body.insertRow();for(const cell of row)tr.append(el('td',cell??'Unavailable'))}
+ card.append(details);
+}
+const moduleReady=WebAssembly.compile(Uint8Array.from(atob(document.querySelector('#reader-wasm').textContent),ch=>ch.charCodeAt(0)));
+const mib=n=>Math.round(n/1048576)+' MiB';
+// The limit lives in Rust (lib.rs LIMIT); the page only reads it.
+const maxBytes=moduleReady.then(m=>WebAssembly.instantiate(m)).then(i=>i.exports.limit());
+maxBytes.then(n=>{document.querySelector('#limit').textContent=mib(n)+' per file'},()=>{document.querySelector('#limit').textContent='reader failed to load'});
+let queue=Promise.resolve(),pending=0;
+async function read(file){
+ const card=el('article');card.append(el('h2',file.name));results.prepend(card);
+ try{
+ const max=await maxBytes;
+ if(file.size>max)throw Error('Maximum size is '+mib(max)+' per file.');
+ const ext=file.name.split('.').pop().toLowerCase();
+ const kind=({xml:1,plist:1,ips:2,json:2,txt:3,log:3,out:3,crash:3})[ext]??0;
+ const wasm=await WebAssembly.instantiate(await moduleReady);
+ const api=wasm.exports, bytes=new Uint8Array(await file.arrayBuffer());
+ const ptr=api.reserve(bytes.length+1);
+ if(!ptr)throw Error('File exceeds the reader limit.');
+ const input=new Uint8Array(api.memory.buffer,ptr,bytes.length+1);
+ input[0]=kind;input.set(bytes,1);
+ const length=api.translate();
+ const data=JSON.parse(new TextDecoder().decode(new Uint8Array(api.memory.buffer,api.result_ptr(),length)));
+ if(data.error)throw Error(data.error);
+ display(card,data);
+ }catch(err){card.append(el('p',err.message))}
+}
+function add(items){for(const file of Array.from(items)){pending++;clear.hidden=true;statusBox.textContent='Reading files…';queue=queue.then(()=>read(file)).finally(()=>{if(--pending===0){statusBox.textContent=results.children.length+' files reviewed';clear.hidden=false}})}}
+files.onchange=()=>{add(files.files);files.value=''};
+for(const type of ['dragover','drop'])document.addEventListener(type,e=>e.preventDefault());
+zone.ondragover=()=>zone.classList.add('active');zone.ondragleave=()=>zone.classList.remove('active');zone.ondrop=e=>{zone.classList.remove('active');add(e.dataTransfer.files)};
+clear.onclick=()=>{results.replaceChildren();statusBox.textContent='';clear.hidden=true};
+</script></html>
