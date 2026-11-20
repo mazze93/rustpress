@@ -18,10 +18,10 @@
     "astro": "7.3.3"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.8",
+    "@astrojs/check": "0.9.12",
     "@types/node": "^26.6.3",
     "typescript": "5.9.3",
-    "wrangler": "4.135.0"
+    "wrangler": "4.160.0"
   },
   "allowScripts": {
     "fsevents@2.3.3": true,
